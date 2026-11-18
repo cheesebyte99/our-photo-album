@@ -1,0 +1,84 @@
+plugins {
+    id 'com.android.application'
+}
+
+// Firebase 콘솔에서 받은 app/google-services.json(패키지 io.github.cheesebyte99.photoalbum)이 있으면
+// 푸시 알림(FCM)을 켠다. 없으면 알림 없이도 빌드되게 둔다.
+def hasGoogleServices = file('google-services.json').exists()
+if (hasGoogleServices) {
+    apply plugin: 'com.google.gms.google-services'
+}
+
+// 웹 사진첩(저장소 맨 위의 파일들)을 그대로 앱에 넣는다 — 웹과 앱이 같은 파일을 쓴다.
+def webAssetsDir = layout.buildDirectory.dir('generated/webassets')
+def copyAlbumWeb = tasks.register('copyAlbumWeb', Copy) {
+    from(rootProject.file('..')) {
+        include 'index.html', 'manifest.webmanifest', '*.png', 'icon.svg', 'firebase-messaging-sw.js'
+    }
+    into(webAssetsDir.map { it.dir('www') })
+}
+
+// 서명: 환경 변수(CI 비밀값)가 있으면 그 키, 없으면 저장소의 debug.keystore 로 서명한다.
+def envKeystore = System.getenv('ANDROID_KEYSTORE_PATH')
+
+android {
+    namespace 'io.github.cheesebyte99.photoalbum'
+    compileSdk 35
+
+    defaultConfig {
+        applicationId 'io.github.cheesebyte99.photoalbum'
+        minSdk 26
+        targetSdk 35
+        versionCode((project.findProperty('versionCode') ?: '1') as int)
+        versionName project.findProperty('versionName') ?: '1.0.0'
+        buildConfigField 'boolean', 'HAS_FCM', hasGoogleServices ? 'true' : 'false'
+    }
+
+    buildFeatures {
+        buildConfig true
+    }
+
+    signingConfigs {
+        shared {
+            if (envKeystore) {
+                storeFile file(envKeystore)
+                storePassword System.getenv('ANDROID_KEYSTORE_PASSWORD')
+                keyAlias System.getenv('ANDROID_KEY_ALIAS')
+                keyPassword System.getenv('ANDROID_KEY_PASSWORD')
+            } else {
+                storeFile rootProject.file('debug.keystore')
+                storePassword 'android'
+                keyAlias 'androiddebugkey'
+                keyPassword 'android'
+            }
+        }
+    }
+
+    buildTypes {
+        debug {
+            signingConfig signingConfigs.shared
+        }
+        release {
+            minifyEnabled false
+            signingConfig signingConfigs.shared
+        }
+    }
+
+    sourceSets {
+        main.assets.srcDirs += webAssetsDir.get().asFile
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+}
+
+tasks.named('preBuild') { dependsOn copyAlbumWeb }
+
+dependencies {
+    implementation 'androidx.webkit:webkit:1.12.1'
+    implementation 'androidx.core:core:1.13.1'
+    implementation platform('com.google.firebase:firebase-bom:35.2.0')
+    implementation 'com.google.firebase:firebase-messaging'
+}

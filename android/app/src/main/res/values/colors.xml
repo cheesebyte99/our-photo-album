@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="app_bg">#FAF6F0</color>
+    <color name="ic_bg">#EBC2A0</color>
+    <color name="notif">#C0704A</color>
+</resources>

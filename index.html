@@ -1,0 +1,4518 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover, interactive-widget=resizes-content">
+<meta name="theme-color" content="#FAF6F0">
+<meta name="color-scheme" content="light">
+<title>우리 사진첩 · 데이트와 기념일</title>
+<meta name="description" content="데이트한 날, 기념일의 사진을 날짜별로 모아 두는 우리 둘의 사진첩. 사진 원본은 Cloudinary에, 날짜 기록은 함께 쓰는 방에 담깁니다.">
+<meta name="application-name" content="우리 사진첩">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="우리 사진첩">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="icon" href="icon-192.png" sizes="192x192" type="image/png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<style>
+  :root {
+    --bg: #FAF6F0;
+    --card: #FFFFFF;
+    --ink: #2B2621;
+    --ink-2: #5F564C;
+    --ink-3: #9A8F84;
+    --line: #ECE2D6;
+    --accent: #C0704A;
+    --accent-2: #A85B37;
+    --accent-soft: #F7E6DA;
+    --rose: #B4636F;
+    --gold: #DBA13C;
+    --done-fg: #3F6E48;
+    --danger: #B23A2E;
+    --radius: 18px;
+    --shadow: 0 1px 2px rgba(84, 58, 34, .05), 0 8px 20px -12px rgba(84, 58, 34, .28);
+  }
+
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  html { -webkit-text-size-adjust: 100%; }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    background: radial-gradient(120% 55% at 50% 0%, #FFF5E9 0%, rgba(255, 245, 233, 0) 62%), var(--bg);
+    color: var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Noto Sans KR",
+      "Malgun Gothic", "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+    font-size: 16px;
+    line-height: 1.5;
+    overscroll-behavior-y: none;
+  }
+
+  body.locked { overflow: hidden; }
+
+  button, input, select, textarea { font-family: inherit; font-size: inherit; color: inherit; }
+
+  .app {
+    max-width: 560px;
+    margin: 0 auto;
+    padding: 0 16px calc(150px + env(safe-area-inset-bottom, 0px));
+  }
+
+  /* ---------- 헤더 ---------- */
+  .app-head { position: relative; padding: 24px 2px 10px; }
+
+  .eyebrow {
+    margin: 0;
+    font-size: 11.5px;
+    font-weight: 800;
+    letter-spacing: .16em;
+    color: var(--accent);
+    text-transform: uppercase;
+  }
+
+  h1 {
+    margin: 5px 0 3px;
+    padding-right: 54px;
+    font-size: 27px;
+    font-weight: 800;
+    letter-spacing: -.025em;
+    line-height: 1.2;
+  }
+
+  .head-sub { margin: 0; font-size: 13px; color: var(--ink-3); }
+
+  .head-share {
+    position: absolute;
+    right: 0;
+    top: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    border: 1px solid var(--line);
+    border-radius: 50%;
+    background: #fff;
+    color: var(--accent-2);
+    box-shadow: var(--shadow);
+  }
+
+  .head-share svg { width: 21px; height: 21px; }
+
+  .room-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    min-height: 36px;
+    margin-top: 9px;
+    padding: 0 12px;
+    border: 1px solid #EBD6C6;
+    border-radius: 999px;
+    background: #FFF6EA;
+    color: var(--accent-2);
+    font-size: 12px;
+    font-weight: 800;
+  }
+
+  .room-chip .dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #6E9C74;
+  }
+
+  /* ---------- 검색 ---------- */
+  .search-box { position: relative; margin: 8px 0 12px; }
+
+  .search-box input {
+    width: 100%;
+    height: 50px;
+    padding: 0 46px;
+    border: 1px solid var(--line);
+    border-radius: 15px;
+    background: #fff;
+    font-size: 15px;
+    box-shadow: var(--shadow);
+  }
+
+  .search-box input::placeholder { color: #B6AB9F; }
+
+  .search-box input:focus {
+    outline: none;
+    border-color: #DEB49C;
+    box-shadow: 0 0 0 3px rgba(192, 112, 74, .12), var(--shadow);
+  }
+
+  .search-box input::-webkit-search-cancel-button { display: none; }
+
+  .search-ico {
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 19px;
+    height: 19px;
+    color: #B6AB9F;
+    pointer-events: none;
+  }
+
+  .search-clear {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border: none;
+    border-radius: 50%;
+    background: #F1E9DF;
+    color: var(--ink-2);
+    font-size: 15px;
+    line-height: 1;
+  }
+
+  .search-clear.on { display: flex; }
+
+  /* ---------- 월 필터 ---------- */
+  .pills {
+    display: flex;
+    gap: 7px;
+    overflow-x: auto;
+    margin: 0 -16px;
+    padding: 2px 16px 12px;
+    scrollbar-width: none;
+  }
+
+  .pills::-webkit-scrollbar { display: none; }
+
+  .pill {
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 44px;
+    padding: 0 14px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: #fff;
+    color: var(--ink-2);
+    font-size: 14px;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+
+  .pill.on { background: var(--ink); border-color: var(--ink); color: #fff; }
+
+  .pill-n { font-size: 12px; font-weight: 700; color: var(--ink-3); font-variant-numeric: tabular-nums; }
+  .pill.on .pill-n { color: rgba(255, 255, 255, .72); }
+
+  .toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 10px;
+    padding: 0 2px;
+  }
+
+  .result-count { font-size: 13px; color: var(--ink-3); font-weight: 600; }
+
+  /* ---------- 타임라인 카드 ---------- */
+  .day-list { display: grid; gap: 12px; }
+
+  .card {
+    position: relative;
+    padding: 15px;
+    border: 1px solid rgba(180, 150, 120, .16);
+    border-radius: var(--radius);
+    background: var(--card);
+    box-shadow: var(--shadow);
+    transition: transform .12s ease, box-shadow .12s ease;
+  }
+
+  .card:active { transform: scale(.99); }
+
+  .day-top { display: flex; gap: 13px; align-items: flex-start; }
+
+  .date-chip {
+    flex: 0 0 auto;
+    width: 56px;
+    padding: 9px 0 8px;
+    border-radius: 15px;
+    background: linear-gradient(160deg, #FFF3E7, #F6DFCC);
+    text-align: center;
+    color: var(--accent-2);
+  }
+
+  .date-chip .d { display: block; font-size: 22px; font-weight: 800; line-height: 1; font-variant-numeric: tabular-nums; }
+  .date-chip .m { display: block; margin-top: 4px; font-size: 11px; font-weight: 800; letter-spacing: .01em; }
+  .date-chip .w { display: block; margin-top: 1px; font-size: 10.5px; font-weight: 700; color: #B98A6F; }
+
+  .day-body { flex: 1 1 auto; min-width: 0; }
+
+  .day-title {
+    margin: 1px 0 0;
+    font-size: 17px;
+    font-weight: 800;
+    letter-spacing: -.012em;
+    line-height: 1.35;
+    word-break: keep-all;
+    overflow-wrap: anywhere;
+  }
+
+  .day-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    margin: 5px 0 0;
+    font-size: 13px;
+    color: var(--ink-3);
+  }
+
+  .day-meta .dot { color: #D3C7B8; }
+  .day-meta .ico { font-size: 12px; }
+
+  .day-memo {
+    display: -webkit-box;
+    margin: 7px 0 0;
+    overflow: hidden;
+    color: var(--ink-2);
+    font-size: 13.5px;
+    line-height: 1.55;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    white-space: pre-line;
+  }
+
+  .day-thumbs {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 6px;
+    margin-top: 11px;
+  }
+
+  .day-thumb {
+    position: relative;
+    display: block;
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    padding: 0;
+    overflow: hidden;
+    border: 0;
+    border-radius: 11px;
+    background: #F3ECE2;
+  }
+
+  .day-thumb img { display: block; width: 100%; height: 100%; object-fit: cover; }
+
+  .thumb-more {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(28, 20, 14, .55);
+    color: #fff;
+    font-size: 14px;
+    font-weight: 800;
+  }
+
+  .day-nophoto {
+    margin: 10px 0 0;
+    padding: 11px 12px;
+    border: 1px dashed #E4D7C7;
+    border-radius: 12px;
+    background: #FBF6F0;
+    color: var(--ink-3);
+    font-size: 12px;
+    text-align: center;
+  }
+
+  .day-foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-top: 10px;
+    padding-top: 9px;
+    border-top: 1px solid #F5EEE6;
+  }
+
+  .day-author { font-size: 12px; font-weight: 700; color: var(--ink-3); }
+  .day-author .avatar {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    margin-right: 5px;
+    border-radius: 50%;
+    background: var(--accent-soft);
+    color: var(--accent-2);
+    font-size: 10.5px;
+    font-weight: 800;
+    vertical-align: -5px;
+  }
+
+  .day-open {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    min-height: 34px;
+    padding: 0 11px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: #fff;
+    color: var(--ink-2);
+    font-size: 12px;
+    font-weight: 800;
+  }
+
+  /* ---------- 사진 모아보기 ---------- */
+  .photo-group { margin-bottom: 18px; }
+
+  .photo-group-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 10px;
+    margin: 0 2px 8px;
+  }
+
+  .photo-group-head h3 { margin: 0; font-size: 14.5px; font-weight: 800; letter-spacing: -.01em; }
+  .photo-group-head span { font-size: 12px; font-weight: 700; color: var(--ink-3); }
+
+  .photo-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 6px;
+  }
+
+  .photo-cell {
+    position: relative;
+    display: block;
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    padding: 0;
+    overflow: hidden;
+    border: 0;
+    border-radius: 10px;
+    background: #F3ECE2;
+  }
+
+  .photo-cell img { display: block; width: 100%; height: 100%; object-fit: cover; }
+
+  /* ---------- 설정 ---------- */
+  .panel {
+    margin-bottom: 12px;
+    padding: 16px;
+    border: 1px solid rgba(180, 150, 120, .16);
+    border-radius: var(--radius);
+    background: #fff;
+    box-shadow: var(--shadow);
+  }
+
+  .panel > h3 {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    margin: 0 0 10px;
+    font-size: 15px;
+    font-weight: 800;
+    letter-spacing: -.01em;
+  }
+
+  .panel-note { margin: 0 0 12px; font-size: 12.5px; line-height: 1.6; color: var(--ink-3); }
+
+  .set-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 11px 0;
+    border-top: 1px solid var(--line);
+  }
+  .set-row .lbl { display: block; font-size: 14px; font-weight: 800; color: var(--ink); }
+  .set-row .sub { display: block; margin-top: 2px; font-size: 12px; color: var(--ink-3); line-height: 1.45; }
+  .set-row .input { width: auto; min-height: 40px; padding: 7px 10px; flex: 0 0 auto; }
+  .set-row.off { opacity: .45; }
+  .switch {
+    appearance: none;
+    -webkit-appearance: none;
+    flex: 0 0 auto;
+    position: relative;
+    width: 48px;
+    height: 28px;
+    margin: 0;
+    border-radius: 999px;
+    background: #DCD2C6;
+    cursor: pointer;
+    transition: background .2s ease;
+  }
+  .switch::after {
+    content: '';
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, .2);
+    transition: transform .2s ease;
+  }
+  .switch:checked { background: var(--accent); }
+  .switch:checked::after { transform: translateX(20px); }
+  .switch:disabled { opacity: .5; cursor: default; }
+  .switch:focus-visible { outline: 3px solid rgba(192, 112, 74, .35); outline-offset: 2px; }
+  .push-status { margin: 0 0 10px; }
+  .push-status[hidden] { display: none; }
+  .anniv-list { list-style: none; margin: 10px 0 0; padding: 0; }
+  .anniv-list:empty { display: none; }
+  .anniv-list li {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 8px 0;
+    border-top: 1px dashed var(--line);
+    font-size: 13px;
+    color: var(--ink-2);
+  }
+  .anniv-list .dd { font-weight: 800; color: var(--rose); white-space: nowrap; }
+  .anniv-list li.wedding .dd { color: var(--gold); }
+  .mini-sub { margin-left: 4px; font-weight: 600; color: var(--ink-3); }
+
+  .anniv-card {
+    margin: 2px 0 10px;
+    padding: 11px 14px 2px;
+    border-radius: var(--radius);
+    background: linear-gradient(135deg, #FFF1E6 0%, #FBE3E1 100%);
+    border: 1px solid rgba(180, 99, 111, .18);
+    box-shadow: var(--shadow);
+  }
+  .anniv-card.empty { padding: 0; background: none; border: none; box-shadow: none; }
+  .anniv-top { display: flex; gap: 10px; }
+  .anniv-stat { flex: 1 1 0; min-width: 0; }
+  .anniv-stat .l { display: block; font-size: 11.5px; font-weight: 700; color: var(--ink-2); }
+  .anniv-stat .v { display: block; margin-top: 1px; font-size: 19px; font-weight: 900; color: var(--rose); letter-spacing: -.3px; line-height: 1.25; }
+  .anniv-card .anniv-list { margin-top: 8px; }
+  .anniv-card .anniv-list li { padding: 7px 0 8px; border-top-color: rgba(180, 99, 111, .22); font-size: 12.5px; color: var(--ink); }
+  .anniv-empty {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1px dashed #E2C6B4;
+    border-radius: 14px;
+    background: rgba(255, 255, 255, .6);
+    color: var(--accent-2);
+    font: inherit;
+    font-size: 13px;
+    font-weight: 700;
+    text-align: left;
+    cursor: pointer;
+  }
+
+  .link-row { display: flex; gap: 8px; align-items: stretch; }
+  .link-row .input { flex: 1 1 auto; min-width: 0; }
+  .link-row .btn { flex: 0 0 auto; }
+
+  .join-box { margin-top: 14px; padding-top: 12px; border-top: 1px dashed var(--line); }
+  .join-box .key-state { margin-top: 7px; font-weight: 600; word-break: break-word; }
+  .join-box .key-state.warn { font-weight: 700; color: var(--danger); }
+
+  .key-state { margin: 9px 0 0; font-size: 12px; font-weight: 700; color: var(--ink-3); line-height: 1.5; }
+  .key-state.on { color: var(--done-fg); }
+  .key-state.warn { color: var(--danger); }
+
+  .mini-label { display: block; margin: 0 0 5px 2px; font-size: 12px; font-weight: 800; color: var(--ink-2); }
+
+  /* ---------- 사진 올리기 화질 ---------- */
+  .qual-picker { display: flex; flex-direction: column; gap: 8px; }
+
+  .qual-option {
+    display: block;
+    width: 100%;
+    min-height: 56px;
+    padding: 11px 13px;
+    border: 1.5px solid var(--line);
+    border-radius: 14px;
+    background: #FFFDFB;
+    color: var(--ink);
+    text-align: left;
+    cursor: pointer;
+  }
+
+  .qual-option:active { opacity: .88; }
+
+  .qual-option.on {
+    border-color: var(--accent);
+    background: var(--accent-soft);
+    box-shadow: 0 0 0 3px rgba(192, 112, 74, .1);
+  }
+
+  .qual-title {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 14.5px;
+    font-weight: 800;
+    letter-spacing: -.01em;
+  }
+
+  .qual-badge {
+    padding: 2px 7px;
+    border-radius: 999px;
+    background: var(--accent);
+    color: #fff;
+    font-size: 10.5px;
+    font-weight: 800;
+    letter-spacing: 0;
+  }
+
+  .qual-desc {
+    display: block;
+    margin-top: 3px;
+    font-size: 12px;
+    line-height: 1.5;
+    color: var(--ink-3);
+  }
+
+  .qual-option.on .qual-desc { color: var(--ink-2); }
+
+  .guide { margin-top: 14px; padding-top: 12px; border-top: 1px solid #F4EDE4; }
+  .guide summary { font-size: 13px; font-weight: 800; color: var(--accent-2); cursor: pointer; }
+  .guide ol { margin: 10px 0 0; padding-left: 20px; font-size: 12.5px; line-height: 1.7; color: var(--ink-2); }
+  .guide li { margin-bottom: 6px; }
+  .guide p { margin: 10px 0 0; font-size: 12px; color: var(--ink-3); line-height: 1.6; }
+  .guide a { color: var(--accent-2); font-weight: 700; }
+
+  .kv-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 8px 0;
+    border-bottom: 1px solid #F5EEE6;
+    font-size: 13.5px;
+  }
+
+  .kv-row:last-of-type { border-bottom: none; }
+  .kv-row .k { color: var(--ink-3); font-weight: 600; }
+  .kv-row .v { font-weight: 800; }
+  .kv-row .v.ok { color: var(--done-fg); }
+  .kv-row .v.warn { color: var(--danger); }
+
+  /* ---------- 빈 상태 ---------- */
+  .empty {
+    padding: 44px 22px 38px;
+    border: 1px dashed #E3D6C6;
+    border-radius: var(--radius);
+    background: #FFFDFB;
+    text-align: center;
+  }
+
+  .empty .emo { font-size: 42px; line-height: 1; }
+  .empty h3 { margin: 14px 0 6px; font-size: 17px; font-weight: 800; letter-spacing: -.01em; }
+  .empty p { margin: 0 0 20px; font-size: 13.5px; color: var(--ink-3); line-height: 1.65; }
+  .empty p.empty-hint { margin: 10px 0 0; font-size: 12px; }
+
+  /* ---------- 버튼 / 입력 ---------- */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 46px;
+    padding: 0 18px;
+    border: 1px solid var(--line);
+    border-radius: 13px;
+    background: #fff;
+    color: var(--ink);
+    font-size: 15px;
+    font-weight: 700;
+    text-decoration: none;
+    cursor: pointer;
+  }
+
+  .btn:active { opacity: .85; }
+  .btn[disabled] { opacity: .55; }
+
+  .btn.primary {
+    border-color: var(--accent);
+    background: var(--accent);
+    color: #fff;
+    box-shadow: 0 8px 18px -10px rgba(168, 91, 55, .9);
+  }
+
+  .btn.primary:active { background: var(--accent-2); }
+
+  .btn.danger { border-color: #F0D2CC; background: #FFF4F2; color: var(--danger); }
+  .btn.ghost { border-color: transparent; background: transparent; color: var(--ink-2); }
+  .btn.block { width: 100%; }
+  .btn.sm { min-height: 44px; padding: 0 14px; font-size: 13.5px; }
+
+  .field { margin-bottom: 14px; }
+  .field > label { display: block; margin-bottom: 6px; font-size: 13px; font-weight: 800; color: var(--ink-2); }
+  .field .req { color: var(--accent); }
+  .opt { font-size: 11.5px; font-weight: 600; color: var(--ink-3); }
+
+  .input, .textarea {
+    width: 100%;
+    min-height: 48px;
+    padding: 12px 13px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: #fff;
+    font-size: 16px;
+  }
+
+  .textarea { min-height: 86px; line-height: 1.55; resize: vertical; }
+
+  .input:focus, .textarea:focus {
+    outline: none;
+    border-color: #DEB49C;
+    box-shadow: 0 0 0 3px rgba(192, 112, 74, .12);
+  }
+
+  .hint { margin: 7px 0 0; font-size: 11.5px; color: var(--ink-3); line-height: 1.55; }
+  .hint.warn { color: var(--danger); font-weight: 700; }
+
+  .file-input { position: absolute; width: 1px; height: 1px; opacity: 0; overflow: hidden; }
+
+  /* ---------- 사진 고르기 / 올리는 중 ---------- */
+  .pick-row { display: flex; gap: 10px; align-items: center; }
+  .pick-row label.btn { flex: 1 1 auto; cursor: pointer; }
+
+  .draft-empty {
+    margin-top: 10px;
+    padding: 18px 14px;
+    border: 1px dashed #E0D2C0;
+    border-radius: 14px;
+    background: #FBF5EE;
+    color: var(--ink-3);
+    font-size: 12.5px;
+    line-height: 1.6;
+    text-align: center;
+  }
+
+  .draft-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+    margin-top: 10px;
+  }
+
+  .draft-grid:empty { display: none; }
+
+  .draft-tile {
+    position: relative;
+    overflow: hidden;
+    aspect-ratio: 1 / 1;
+    border: 1px solid rgba(180, 150, 120, .22);
+    border-radius: 13px;
+    background: #F3ECE2;
+  }
+
+  .draft-tile img { display: block; width: 100%; height: 100%; object-fit: cover; }
+  .draft-tile.failed img { opacity: .35; }
+
+  .draft-del {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    padding: 0;
+    border: 0;
+    border-radius: 999px;
+    background: rgba(24, 18, 12, .62);
+    color: #fff;
+    font-size: 13px;
+    font-weight: 800;
+    line-height: 1;
+  }
+
+  .draft-badge {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    padding: 5px 6px;
+    background: rgba(24, 18, 12, .6);
+    color: #fff;
+    font-size: 10.5px;
+    font-weight: 800;
+    text-align: center;
+  }
+
+  .draft-badge.ready { background: rgba(63, 110, 72, .82); }
+  .draft-badge.failed { background: rgba(178, 58, 46, .88); }
+
+  .draft-prog {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 4px;
+    background: rgba(255, 255, 255, .35);
+  }
+
+  .draft-prog-fill { display: block; width: 0; height: 100%; background: var(--accent); transition: width .2s ease; }
+
+  .draft-spin {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 11px;
+    font-weight: 800;
+    background: rgba(24, 18, 12, .45);
+  }
+
+  /* ---------- 플로팅 버튼 / 탭바 ---------- */
+  .fab {
+    position: fixed;
+    right: calc(max(0px, (100vw - 560px) / 2) + 18px);
+    bottom: calc(88px + env(safe-area-inset-bottom, 0px));
+    z-index: 40;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 58px;
+    height: 58px;
+    border: none;
+    border-radius: 50%;
+    background: linear-gradient(145deg, #CF7E54, #A85B37);
+    color: #fff;
+    font-size: 32px;
+    font-weight: 300;
+    line-height: 1;
+    box-shadow: 0 12px 26px -10px rgba(150, 70, 35, .85);
+    transition: transform .12s ease;
+  }
+
+  .fab:active { transform: scale(.94); }
+  .fab.hidden { display: none !important; }
+
+  .tabbar {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 45;
+    display: flex;
+    justify-content: center;
+    padding: 7px 10px calc(7px + env(safe-area-inset-bottom, 0px));
+    border-top: 1px solid var(--line);
+    background: rgba(255, 252, 248, .95);
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+  }
+
+  .tabbar-inner { display: flex; width: 100%; max-width: 548px; }
+
+  .tab {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    min-height: 50px;
+    padding: 4px 0;
+    border: none;
+    border-radius: 12px;
+    background: transparent;
+    color: var(--ink-3);
+    font-size: 11.5px;
+    font-weight: 700;
+  }
+
+  .tab svg { width: 21px; height: 21px; }
+  .tab.on { color: var(--accent); }
+
+  /* ---------- 시트 ---------- */
+  .backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 50;
+    background: rgba(43, 30, 19, .42);
+    -webkit-backdrop-filter: blur(2px);
+    backdrop-filter: blur(2px);
+    animation: fadeIn .18s ease-out;
+  }
+
+  .hidden { display: none !important; }
+
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes sheetIn { from { transform: translateY(28px); opacity: .4; } to { transform: translateY(0); opacity: 1; } }
+  @keyframes popIn { from { transform: translate(-50%, -46%) scale(.96); opacity: 0; } to { transform: translate(-50%, -50%) scale(1); opacity: 1; } }
+
+  .sheet {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 60;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 560px;
+    margin: 0 auto;
+    max-height: 92vh;
+    max-height: 92dvh;
+    max-height: calc(var(--app-vh, 100dvh) * .92);
+    overflow: hidden;
+    overflow: clip;
+    border-radius: 22px 22px 0 0;
+    background: #FFFDFB;
+    box-shadow: 0 -14px 40px -18px rgba(60, 35, 15, .55);
+    animation: sheetIn .22s cubic-bezier(.2, .8, .2, 1);
+  }
+
+  .sheet-grab { flex: 0 0 auto; width: 40px; height: 4px; margin: 8px auto 0; border-radius: 999px; background: #E4D8CA; }
+
+  .sheet-head {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 10px 18px 8px;
+  }
+
+  .sheet-head h2 { margin: 0; font-size: 18px; font-weight: 800; letter-spacing: -.02em; }
+
+  .icon-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border: none;
+    border-radius: 50%;
+    background: #F3EBE1;
+    color: var(--ink-2);
+    font-size: 16px;
+  }
+
+  .sheet-body {
+    flex: 1 1 auto;
+    min-height: 0;
+    padding: 4px 18px 12px;
+    overflow-x: hidden;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+    scroll-padding-block: 14px 22px;
+  }
+
+  .sheet-foot {
+    position: relative;
+    z-index: 1;
+    flex: 0 0 auto;
+    display: flex;
+    gap: 9px;
+    padding: 10px 18px calc(12px + env(safe-area-inset-bottom, 0px));
+    border-top: 1px solid #F2E9DF;
+    background: #FFFDFB;
+    box-shadow: 0 -8px 16px -14px rgba(60, 35, 15, .5);
+  }
+
+  .sheet-foot .btn { flex: 1; min-height: 50px; font-size: 16px; }
+  .sheet-foot .btn.danger { flex: 0 0 auto; padding: 0 16px; }
+
+  /* ---------- 다이얼로그 ---------- */
+  /* 라이트박스(z 95) 위에서도 확인창이 눌리도록 가장 위에 둡니다. */
+  #dialog-backdrop { z-index: 96; }
+
+  .dialog {
+    position: fixed;
+    left: 50%;
+    top: 50%;
+    z-index: 97;
+    width: min(88vw, 372px);
+    padding: 20px;
+    border-radius: 20px;
+    background: #FFFDFB;
+    box-shadow: 0 24px 60px -20px rgba(50, 30, 12, .6);
+    transform: translate(-50%, -50%);
+    animation: popIn .18s ease-out;
+  }
+
+  .dialog h2 { margin: 0 0 8px; font-size: 17px; font-weight: 800; letter-spacing: -.02em; }
+  .dialog p { margin: 0 0 18px; font-size: 13.5px; line-height: 1.65; color: var(--ink-2); white-space: pre-line; }
+  .dialog-actions { display: flex; flex-direction: column; gap: 8px; }
+  .dialog-actions .btn { width: 100%; min-height: 48px; }
+
+  /* ---------- 라이트박스 ---------- */
+  .lightbox {
+    position: fixed;
+    inset: 0;
+    z-index: 95;
+    display: flex;
+    flex-direction: column;
+    background: #191410;
+    color: #fff;
+    animation: fadeIn .16s ease-out;
+  }
+
+  .lb-top {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: calc(10px + env(safe-area-inset-top, 0px)) 12px 4px;
+  }
+
+  .lb-count { padding-left: 6px; font-size: 12.5px; font-weight: 800; letter-spacing: .04em; color: rgba(255, 255, 255, .7); font-variant-numeric: tabular-nums; }
+
+  .lb-close {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    border: 1px solid rgba(255, 255, 255, .24);
+    border-radius: 50%;
+    background: rgba(255, 255, 255, .12);
+    color: #fff;
+    font-size: 17px;
+    line-height: 1;
+  }
+
+  .lb-stage {
+    position: relative;
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px 10px;
+  }
+
+  .lb-stage img {
+    display: block;
+    max-width: 100%;
+    max-height: 100%;
+    border-radius: 12px;
+    background: #F3ECE2;
+    box-shadow: 0 22px 50px -18px rgba(0, 0, 0, .85);
+    object-fit: contain;
+  }
+
+  .lb-nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    border: 1px solid rgba(255, 255, 255, .28);
+    border-radius: 50%;
+    background: rgba(255, 255, 255, .16);
+    color: #fff;
+    font-size: 22px;
+    font-weight: 800;
+    line-height: 1;
+  }
+
+  .lb-prev { left: 4px; }
+  .lb-next { right: 4px; }
+
+  .lb-info {
+    flex: 0 0 auto;
+    padding: 10px 18px calc(16px + env(safe-area-inset-bottom, 0px));
+    background: linear-gradient(to top, rgba(0, 0, 0, .35), rgba(0, 0, 0, 0));
+  }
+
+  .lb-date { margin: 0; font-size: 12.5px; font-weight: 700; color: rgba(255, 255, 255, .72); }
+  .lb-title { margin: 2px 0 0; font-size: 15.5px; font-weight: 800; letter-spacing: -.01em; }
+
+  .lb-cap-row { display: flex; gap: 8px; margin-top: 10px; }
+
+  .lb-cap {
+    flex: 1 1 auto;
+    min-width: 0;
+    min-height: 44px;
+    padding: 10px 12px;
+    border: 1px solid rgba(255, 255, 255, .24);
+    border-radius: 12px;
+    background: rgba(255, 255, 255, .12);
+    color: #fff;
+    font-size: 15px;
+  }
+
+  .lb-cap::placeholder { color: rgba(255, 255, 255, .5); }
+  .lb-cap:focus { outline: none; border-color: rgba(255, 255, 255, .55); }
+
+  .lb-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    min-height: 44px;
+    padding: 0 14px;
+    border: 1px solid rgba(255, 255, 255, .28);
+    border-radius: 12px;
+    background: rgba(255, 255, 255, .14);
+    color: #fff;
+    font-size: 13px;
+    font-weight: 800;
+    white-space: nowrap;
+  }
+
+  .lb-actions { display: flex; gap: 8px; margin-top: 8px; }
+  .lb-actions .lb-btn { flex: 1 1 auto; }
+  .lb-actions .lb-btn.accent { border-color: rgba(255, 255, 255, .5); background: rgba(255, 255, 255, .92); color: #2B2621; }
+  .lb-actions .lb-btn.danger { border-color: rgba(255, 150, 140, .5); color: #FFB9B1; }
+
+  /* ---------- 토스트 ---------- */
+  .toast {
+    position: fixed;
+    left: 50%;
+    bottom: calc(96px + env(safe-area-inset-bottom, 0px));
+    z-index: 99;
+    max-width: 84vw;
+    padding: 11px 18px;
+    border-radius: 999px;
+    background: rgba(43, 38, 33, .95);
+    color: #fff;
+    font-size: 13.5px;
+    font-weight: 600;
+    text-align: center;
+    opacity: 0;
+    transform: translate(-50%, 8px);
+    transition: opacity .2s ease, transform .2s ease;
+    pointer-events: none;
+  }
+
+  .toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+  .noscript { margin: 20px 0; padding: 16px; border-radius: 14px; background: #FFF2EC; color: var(--accent-2); font-size: 14px; font-weight: 700; }
+
+  .app-foot { margin: 26px 0 8px; text-align: center; font-size: 11.5px; color: #B6AB9F; line-height: 1.6; }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <header class="app-head">
+    <p class="eyebrow">Our little album</p>
+    <h1 id="head-title">우리 사진첩</h1>
+    <p class="head-sub" id="head-sub">날짜마다 추억을 모아 두세요</p>
+    <button type="button" class="head-share" id="btn-head-share" aria-label="공유와 설정">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="18" cy="5" r="2.6"></circle>
+        <circle cx="6" cy="12" r="2.6"></circle>
+        <circle cx="18" cy="19" r="2.6"></circle>
+        <path d="M8.4 10.8l7.2-4.1"></path>
+        <path d="M8.4 13.2l7.2 4.1"></path>
+      </svg>
+    </button>
+    <button type="button" class="room-chip hidden" id="room-chip">
+      <span class="dot"></span><span id="room-chip-text">함께 쓰는 앨범</span>
+    </button>
+  </header>
+
+  <main id="view-timeline">
+    <section class="anniv-card empty" id="anniv-card" aria-label="우리 기념일"></section>
+    <div class="search-box">
+      <svg class="search-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+        <circle cx="11" cy="11" r="7"></circle>
+        <path d="M20 20l-4.2-4.2"></path>
+      </svg>
+      <input id="search" type="search" inputmode="search" enterkeyhint="search"
+             placeholder="제목, 장소, 메모 검색" autocomplete="off" autocorrect="off"
+             spellcheck="false" aria-label="추억 검색">
+      <button id="search-clear" class="search-clear" type="button" aria-label="검색어 지우기">✕</button>
+    </div>
+
+    <div class="pills" id="month-pills" role="group" aria-label="달로 보기"></div>
+
+    <div class="toolbar">
+      <span class="result-count" id="result-count"></span>
+    </div>
+
+    <div class="day-list" id="timeline"></div>
+    <noscript><p class="noscript">이 앱은 자바스크립트가 필요합니다. 브라우저에서 자바스크립트를 켜 주세요.</p></noscript>
+  </main>
+
+  <main id="view-photos" class="hidden">
+    <div id="photo-groups"></div>
+  </main>
+
+  <main id="view-settings" class="hidden">
+    <section class="panel">
+      <h3>🔗 함께 쓰는 앨범</h3>
+      <p class="panel-note" id="share-explain">
+        링크 하나를 서로 나눠 열면, 한 사람이 올린 추억이 다른 사람 화면에도 바로 나타나요.
+      </p>
+      <div id="share-local">
+        <button type="button" class="btn primary block" id="btn-create-room">공유 링크 만들기</button>
+        <p class="key-state" id="share-local-note">지금은 이 기기에만 저장하고 있어요.</p>
+        <div class="join-box" id="join-box">
+          <label class="mini-label" for="join-room">받은 공유 링크로 들어가기</label>
+          <div class="link-row">
+            <input id="join-room" class="input" type="text" inputmode="url" enterkeyhint="go"
+                   autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false"
+                   placeholder="…?room=album-xxxxxxxx" aria-label="받은 공유 링크 또는 방 ID">
+            <button type="button" class="btn sm" id="btn-join-room">들어가기</button>
+          </div>
+          <p class="key-state" id="join-room-note" aria-live="polite">
+            상대에게 받은 링크를 붙여 넣으면 같은 앨범을 함께 봐요. 홈 화면으로 열어도 여기서 한 번만 넣으면 돼요.
+          </p>
+        </div>
+      </div>
+      <div id="share-room" class="hidden">
+        <label class="mini-label" for="share-link">공유 링크</label>
+        <div class="link-row">
+          <input id="share-link" class="input" type="text" readonly aria-label="공유 링크">
+          <button type="button" class="btn sm" id="btn-copy-link">복사</button>
+        </div>
+        <p class="key-state" id="share-status" aria-live="polite"></p>
+        <button type="button" class="btn block" id="btn-leave-room" style="margin-top:8px">이 기기에서만 보기</button>
+      </div>
+    </section>
+
+    <section class="panel" id="panel-anniv">
+      <h3>💝 우리 기념일</h3>
+      <p class="panel-note">
+        날짜를 넣으면 타임라인 맨 위에 함께한 날수와 다가오는 기념일이 보이고, 알림으로도 챙겨 드려요.
+        함께 쓰는 앨범에서는 두 사람이 같은 날을 써요. 비워 두면 그 기념일은 빠져요.
+      </p>
+      <div class="field">
+        <label class="mini-label" for="set-since">💕 연인이 된 날 <span class="mini-sub">100일·200일…·n주년</span></label>
+        <input id="set-since" class="input" type="date">
+      </div>
+      <div class="field">
+        <label class="mini-label" for="set-wedding">💍 결혼기념일 <span class="mini-sub">결혼 n주년</span></label>
+        <input id="set-wedding" class="input" type="date">
+      </div>
+      <button type="button" class="btn primary block" id="btn-save-since">저장</button>
+      <p class="key-state" id="since-status"></p>
+      <ul class="anniv-list" id="anniv-list"></ul>
+    </section>
+
+    <section class="panel" id="panel-push">
+      <h3>🔔 알림</h3>
+      <p class="panel-note">함께 쓰는 앨범에서 상대가 추억을 담거나 사진을 올리면, 그리고 기념일이 다가오면 알려 드려요.</p>
+      <label class="set-row">
+        <span><span class="lbl">알림 받기</span><span class="sub">이 기기로 이 앨범의 알림을 받아요</span></span>
+        <input id="push-toggle" class="switch" type="checkbox">
+      </label>
+      <p class="key-state push-status" id="push-status" aria-live="polite" hidden></p>
+      <label class="set-row" id="row-push-change">
+        <span><span class="lbl">새 추억·사진 알림</span><span class="sub">상대가 추억을 담거나 사진을 올리면 바로</span></span>
+        <input id="push-change" class="switch" type="checkbox" checked>
+      </label>
+      <label class="set-row" id="row-push-anniv">
+        <span><span class="lbl">기념일 알림</span><span class="sub">100일·n주년·결혼기념일의 당일·하루 전·일주일 전</span></span>
+        <input id="push-anniv" class="switch" type="checkbox" checked>
+      </label>
+      <label class="set-row" id="row-push-time">
+        <span><span class="lbl">기념일 알림 시간</span><span class="sub">이 시각에 기념일 알림이 와요</span></span>
+        <input id="push-time" class="input" type="time" step="300" value="09:00">
+      </label>
+    </section>
+
+    <section class="panel">
+      <h3>☁️ Cloudinary 사진 저장</h3>
+      <p class="panel-note">
+        사진 원본은 Cloudinary(무료 25GB)에 올리고, 앨범에는 사진 주소만 담아요.
+        연결하면 앨범이 가벼워지고, 같은 사진을 여러 기기에서 볼 수 있어요.
+      </p>
+      <div class="field">
+        <label for="set-cloud-name">Cloud name</label>
+        <input id="set-cloud-name" class="input" type="text" autocomplete="off" autocapitalize="off"
+               spellcheck="false" placeholder="예: dxyz1234ab">
+      </div>
+      <div class="field">
+        <label for="set-preset">Unsigned upload preset</label>
+        <input id="set-preset" class="input" type="text" autocomplete="off" autocapitalize="off"
+               spellcheck="false" placeholder="예: jaeyeon_album">
+      </div>
+      <button type="button" class="btn primary block" id="btn-save-cloud">저장</button>
+      <button type="button" class="btn sm block" id="btn-reset-cloud" style="margin-top:6px">기본 설정으로 되돌리기</button>
+      <p class="key-state" id="cloud-status"></p>
+      <details class="guide">
+        <summary>Cloudinary 설정 방법 (처음 한 번만)</summary>
+        <ol>
+          <li><a href="https://cloudinary.com/users/register/free" target="_blank" rel="noopener">cloudinary.com</a>에서 무료로 가입해요 (25GB 무료).</li>
+          <li>Console 홈에서 <b>Cloud name</b>을 복사해 위 첫 칸에 넣어요.</li>
+          <li>오른쪽 위 ⚙ <b>Settings</b> → <b>Upload</b> → <b>Upload presets</b> → <b>Add upload preset</b>.</li>
+          <li><b>Signing Mode</b>를 <b>Unsigned</b>로 바꾸고 이름을 정해 저장해요.</li>
+          <li>그 이름을 <b>Unsigned upload preset</b> 칸에 넣고 저장하면 끝!</li>
+        </ol>
+        <p>Unsigned preset은 사진을 올리는 용도라 공개되어도 괜찮아요. 삭제·관리 권한은 없어요.</p>
+      </details>
+    </section>
+
+    <section class="panel" id="panel-upload-quality">
+      <h3>📷 사진 올리기 화질</h3>
+      <p class="panel-note">앞으로 올리는 사진에 적용돼요. 이미 담아 둔 사진은 그대로 남아요.</p>
+      <div class="qual-picker" role="radiogroup" aria-label="사진 올리기 화질">
+        <button type="button" class="qual-option" id="quality-eco" role="radio"
+                aria-checked="true" data-quality="eco">
+          <span class="qual-title">용량 절약 <span class="qual-badge">추천</span></span>
+          <span class="qual-desc">긴 변 1600px로 줄여 올려요. 휴대폰에서 보기엔 충분하고 저장 공간을 아껴요.</span>
+        </button>
+        <button type="button" class="qual-option" id="quality-original" role="radio"
+                aria-checked="false" data-quality="original">
+          <span class="qual-title">원본 화질</span>
+          <span class="qual-desc">10MB 이하 사진은 그대로 올리고, 그보다 큰 사진만 긴 변 2600px로 줄여요.</span>
+        </button>
+      </div>
+      <p class="key-state" id="quality-status" aria-live="polite"></p>
+    </section>
+
+    <section class="panel">
+      <h3>🙂 내 닉네임</h3>
+      <p class="panel-note">추억마다 누가 남겼는지 보여 줘요. 함께 쓰는 앨범에서는 서로 다른 이름을 써 주세요.</p>
+      <div class="link-row">
+        <input id="set-nickname" class="input" type="text" maxlength="20" autocomplete="off"
+               placeholder="예: 재연" aria-label="내 닉네임">
+        <button type="button" class="btn sm" id="btn-save-nick">저장</button>
+      </div>
+      <p class="key-state" id="nick-status"></p>
+    </section>
+
+    <section class="panel">
+      <h3>💾 이 기기의 기록</h3>
+      <div class="kv-row"><span class="k">저장 방식</span><span class="v" id="store-mode">확인 중</span></div>
+      <div class="kv-row"><span class="k">담긴 추억</span><span class="v" id="store-days">0일</span></div>
+      <div class="kv-row"><span class="k">사진</span><span class="v" id="store-photos">0장</span></div>
+      <p class="panel-note" style="margin-top:10px" id="store-note"></p>
+    </section>
+
+    <section class="panel">
+      <h3>📱 홈 화면에 추가</h3>
+      <p class="panel-note" style="margin:0">
+        Android Chrome: 오른쪽 위 ⋮ → <b>홈 화면에 추가</b>를 누르면 앱처럼 열려요.<br>
+        iPhone Safari: 아래 <b>공유</b> → <b>홈 화면에 추가</b>.
+      </p>
+    </section>
+
+    <p class="app-foot">우리 사진첩 · 사진은 Cloudinary에, 날짜 기록은 함께 쓰는 방에 담깁니다.</p>
+  </main>
+</div>
+
+<button class="fab" id="fab" type="button" aria-label="추억 담기">＋</button>
+
+<nav class="tabbar" aria-label="화면 이동">
+  <div class="tabbar-inner" role="tablist">
+    <button class="tab on" type="button" role="tab" data-view="timeline" aria-selected="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="5" width="18" height="16" rx="3"></rect>
+        <path d="M8 3v4M16 3v4M3 10h18"></path>
+        <path d="M12 17.4s-2.6-1.6-2.6-3.2a1.5 1.5 0 0 1 2.6-1 1.5 1.5 0 0 1 2.6 1c0 1.6-2.6 3.2-2.6 3.2z"></path>
+      </svg>
+      <span>타임라인</span>
+    </button>
+    <button class="tab" type="button" role="tab" data-view="photos" aria-selected="false">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="3" width="7.4" height="7.4" rx="2"></rect>
+        <rect x="13.6" y="3" width="7.4" height="7.4" rx="2"></rect>
+        <rect x="3" y="13.6" width="7.4" height="7.4" rx="2"></rect>
+        <rect x="13.6" y="13.6" width="7.4" height="7.4" rx="2"></rect>
+      </svg>
+      <span>사진</span>
+    </button>
+    <button class="tab" type="button" role="tab" data-view="settings" aria-selected="false">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="3.2"></circle>
+        <path d="M19.4 15a1.7 1.7 0 0 0 .34 1.87l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.7 1.7 0 0 0-1.87-.34 1.7 1.7 0 0 0-1.03 1.56V21a2 2 0 1 1-4 0v-.1A1.7 1.7 0 0 0 8.9 19.3a1.7 1.7 0 0 0-1.87.34l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.7 1.7 0 0 0 4.7 15a1.7 1.7 0 0 0-1.56-1.03H3a2 2 0 1 1 0-4h.1A1.7 1.7 0 0 0 4.7 8.9a1.7 1.7 0 0 0-.34-1.87l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.7 1.7 0 0 0 9 4.6a1.7 1.7 0 0 0 1.03-1.56V3a2 2 0 1 1 4 0v.1A1.7 1.7 0 0 0 15.1 4.7a1.7 1.7 0 0 0 1.87-.34l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.7 1.7 0 0 0 19.4 9v.1a1.7 1.7 0 0 0 1.56 1.03H21a2 2 0 1 1 0 4h-.1A1.7 1.7 0 0 0 19.4 15z"></path>
+      </svg>
+      <span>설정</span>
+    </button>
+  </div>
+</nav>
+
+<div id="sheet-backdrop" class="backdrop hidden"></div>
+
+<section id="day-sheet" class="sheet hidden" role="dialog" aria-modal="true" aria-labelledby="sheet-title">
+  <div class="sheet-grab"></div>
+  <div class="sheet-head">
+    <h2 id="sheet-title">추억 담기</h2>
+    <button type="button" class="icon-btn" id="sheet-close" aria-label="닫기">✕</button>
+  </div>
+  <div class="sheet-body">
+    <form id="day-form" novalidate>
+      <div class="field">
+        <label for="f-date">날짜 <span class="req">*</span></label>
+        <input id="f-date" class="input" type="date" aria-describedby="exif-hint">
+        <p class="hint" id="exif-hint" hidden></p>
+      </div>
+
+      <div class="field">
+        <label for="f-title">제목</label>
+        <input id="f-title" class="input" type="text" maxlength="100" autocomplete="off"
+               placeholder="예: 한강 피크닉, 1주년 기념">
+      </div>
+
+      <div class="field">
+        <label for="f-place">장소 <span class="opt">선택</span></label>
+        <input id="f-place" class="input" type="text" maxlength="80" autocomplete="off"
+               placeholder="예: 여의도 한강공원">
+      </div>
+
+      <div class="field">
+        <label for="f-memo">메모 <span class="opt">선택</span></label>
+        <textarea id="f-memo" class="textarea" maxlength="1000"
+                  placeholder="그날의 기분, 함께한 사람, 기억하고 싶은 말"></textarea>
+      </div>
+
+      <div class="field">
+        <label>사진 <span class="opt" id="draft-count">0장</span></label>
+        <div class="pick-row">
+          <label class="btn sm primary" id="pick-label" for="f-photos">📷 사진 고르기</label>
+          <input id="f-photos" class="file-input" type="file" accept="image/*" multiple>
+        </div>
+        <div class="draft-empty" id="draft-empty">여러 장을 한 번에 골라도 돼요.<br>사진에 찍힌 날짜를 읽어 날짜를 맞춰 드려요.</div>
+        <div class="draft-grid" id="draft-grid"></div>
+        <p class="hint" id="draft-hint">사진 설명은 저장한 뒤 사진을 크게 열어 적을 수 있어요.</p>
+      </div>
+    </form>
+  </div>
+  <div class="sheet-foot">
+    <button type="button" class="btn danger hidden" id="btn-delete-day">삭제</button>
+    <button type="submit" class="btn primary" id="btn-save" form="day-form">저장</button>
+  </div>
+</section>
+
+<div id="dialog-backdrop" class="backdrop hidden"></div>
+
+<div id="dialog" class="dialog hidden" role="alertdialog" aria-modal="true" aria-labelledby="dlg-title">
+  <h2 id="dlg-title"></h2>
+  <p id="dlg-msg"></p>
+  <div class="dialog-actions" id="dlg-actions"></div>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<div id="lightbox" class="lightbox hidden" role="dialog" aria-modal="true" aria-label="사진 크게 보기">
+  <div class="lb-top">
+    <span class="lb-count" id="lb-count"></span>
+    <button type="button" class="lb-close" id="lb-close" aria-label="닫기">✕</button>
+  </div>
+  <div class="lb-stage" id="lb-stage">
+    <img id="lb-img" alt="">
+    <button type="button" class="lb-nav lb-prev hidden" id="lb-prev" aria-label="이전 사진">‹</button>
+    <button type="button" class="lb-nav lb-next hidden" id="lb-next" aria-label="다음 사진">›</button>
+  </div>
+  <div class="lb-info">
+    <p class="lb-date" id="lb-date"></p>
+    <p class="lb-title" id="lb-title"></p>
+    <div class="lb-cap-row">
+      <input id="lb-caption" class="lb-cap" type="text" maxlength="200" placeholder="이 사진에 설명 남기기" autocomplete="off">
+      <button type="button" class="lb-btn" id="lb-save-caption">저장</button>
+    </div>
+    <div class="lb-actions">
+      <button type="button" class="lb-btn accent" id="lb-download">⤓ 원본 저장</button>
+      <button type="button" class="lb-btn danger" id="lb-remove">사진 빼기</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* =======================================================================
+   📸 우리 사진첩 · 데이트와 기념일 사진 앨범
+   - 날짜 하나 = 추억 하나. 날짜마다 사진을 여러 장 담습니다.
+   - 사진 원본은 Cloudinary(Unsigned upload)에 올리고, 앨범에는 주소만 담습니다.
+     Cloudinary를 아직 연결하지 않았으면 사진을 이 기기(IndexedDB)에 줄여 담습니다.
+   - 링크(?room=album-...)를 나눠 열면 같은 앨범을 실시간(Firestore)으로 함께 씁니다.
+     방 하나 = albums/{roomId}
+                albums/{roomId}/days/{dayId}
+                albums/{roomId}/days/{dayId}/photos/{photoId}
+   - Cloudinary 의 Cloud name · Unsigned preset 은 비밀 키가 아니라 공개 설정입니다.
+     (그래서 방 문서에 함께 담아 두면 상대 기기도 그대로 쓸 수 있습니다.)
+   ======================================================================= */
+(function () {
+  'use strict';
+
+  /* ---------------------------------------------------------------- 상수 */
+  const APP_VERSION = 1;
+  const STORAGE_KEY = 'pickle_photo_album_v1';
+  const PROFILE_KEY = 'pickle_photo_album_profile';
+  const CLOUDINARY_KEY = 'pickle_photo_album_cloudinary';
+  /* 처음부터 바로 쓸 수 있도록 넣어 둔 Cloudinary 설정입니다.
+     (Unsigned preset 은 사진을 올리는 용도라 공개되어도 괜찮습니다.
+      설정 화면에서 다른 값으로 바꿀 수 있어요.) */
+  const DEFAULT_CLOUDINARY = {
+    cloudName: 'nphr6ved',
+    uploadPreset: 'jaeyeon_album_unsigned'
+  };
+  const SHARE_ROOM_KEY = 'pickle_photo_album_share_room';
+  const DEVICE_KEY = 'pickle_photo_album_device_id';
+  const PUSH_KEY = 'pickle_photo_album_push';
+  const SINCE_KEY = 'pickle_photo_album_since';
+  const WEDDING_KEY = 'pickle_photo_album_wedding';
+  /* Firebase 콘솔 → 프로젝트 설정 → 클라우드 메시징 → 웹 푸시 인증서(공개 키) — 캘린더와 같은 키 */
+  const VAPID_KEY = 'BA6nKAfzBNESVi8eF5TW9RFwG5uU0RsJMscXyXNLe5SmN49g78AL7CJc31cO9sEggTQAo_2baLhU01x-Wx-humU';
+
+  const IDB_NAME = 'pickle_photo_album_db';
+  const IDB_STORE = 'album';
+  const IDB_KEY = 'main';
+
+  /* Firebase jaeyeon-life 프로젝트 (독서 책장·공유 캘린더와 같은 프로젝트) */
+  const FIREBASE_CONFIG = {
+    apiKey: 'AIzaSyCXfKiu_ckkePfdPBOL8NkUNvpTD9DGisU',
+    authDomain: 'jaeyeon-life.firebaseapp.com',
+    projectId: 'jaeyeon-life',
+    storageBucket: 'jaeyeon-life.firebasestorage.app',
+    messagingSenderId: '1085807433548',
+    appId: '1:1085807433548:web:36ae02c4b357e8ea23e1e9'
+  };
+  const FIREBASE_VERSION = '10.14.1';
+  const ALBUM_COLLECTION = 'albums';
+
+  const MAX_TITLE = 100;
+  const MAX_PLACE = 80;
+  const MAX_MEMO = 1000;
+  const MAX_CAPTION = 200;
+  const MAX_AUTHOR = 20;
+
+  /* 올릴 때: 10MB 를 넘는 사진만 긴 변 2600px 로 줄입니다(원본 화질 유지). */
+  const UPLOAD_DIRECT_LIMIT = 10 * 1024 * 1024;
+  const UPLOAD_MAX_SIDE = 2600;
+  const UPLOAD_QUALITY = 0.86;
+
+  /* 사진 올리기 화질 (설정 화면)
+     eco      = 용량 절약: 긴 변 1600px · JPEG 0.85 로 줄여 올립니다(기본).
+     original = 원본 화질: 10MB 이하는 그대로, 넘는 사진만 2600px 로 줄입니다. */
+  const UPLOAD_QUALITY_KEY = 'pickle_photo_album_upload_quality';
+  const UPLOAD_MODE_ECO = 'eco';
+  const UPLOAD_MODE_ORIGINAL = 'original';
+  const DEFAULT_UPLOAD_MODE = UPLOAD_MODE_ECO;
+  const ECO_UPLOAD_MAX_SIDE = 1600;
+  const ECO_UPLOAD_QUALITY = 0.85;
+  /* 이미 1600px 이하이면서 이만큼 가벼우면 다시 인코딩하지 않고 그대로 올립니다. */
+  const ECO_KEEP_BYTES = 400 * 1024;
+
+  /* Cloudinary 없이 이 기기에만 담을 때: 긴 변 1600px + 480px 썸네일 */
+  const LOCAL_PHOTO_MAX_SIDE = 1600;
+  const LOCAL_PHOTO_QUALITY = 0.82;
+  const LOCAL_THUMB_SIDE = 480;
+  const LOCAL_THUMB_QUALITY = 0.72;
+
+  /* Firestore 문서 한도(1MB) 안으로. 사진 한 장은 문서 하나라 900KB 까지. */
+  const SHARE_PHOTO_MAX_CHARS = 880000;
+
+  const MONTH_NAMES = ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월'];
+  const WEEK = ['일', '월', '화', '수', '목', '금', '토'];
+
+  /* ---------------------------------------------------------------- 상태 */
+  const state = {
+    ready: false,
+    view: 'timeline',
+    days: [],          /* 지금 보고 있는 앨범 (혼자 모드면 local.days, 함께 모드면 Firestore) */
+    query: '',
+    month: 'all',
+    draft: null,
+    draftEditing: false,
+    draftBusy: false,
+    saving: false,
+    lb: null,          /* { dayId, index } */
+    storageMode: '',
+    storageError: '',
+    uploadQuality: '', /* '' = 아직 안 읽음 → localStorage 에서 읽습니다 */
+    joining: false     /* 받은 링크로 앨범에 들어가는 중 */
+  };
+
+  const local = { days: [] };   /* 이 기기에만 있는 앨범 (혼자 모드) */
+
+  const store = { mode: '', error: '' };
+
+  const shared = {
+    active: false,
+    roomId: '',
+    fs: null,
+    unsubDays: null,
+    unsubRoom: null,
+    photoUnsub: {},
+    rawDays: {},
+    photoMap: {},
+    room: null,
+    error: '',
+    metaApplied: false
+  };
+
+  /* 알림: 이 기기의 푸시 토큰과 지금 등록해 둔 방 */
+  const push = { token: '', platform: '', registeredRoom: '', messaging: null };
+
+  const profile = { nickname: '' };
+
+  /* ---------------------------------------------------------------- DOM */
+  const $ = (sel) => document.querySelector(sel);
+  const el = {
+    setSince: $('#set-since'),
+    setWedding: $('#set-wedding'),
+    annivCard: $('#anniv-card'),
+    btnSaveSince: $('#btn-save-since'),
+    sinceStatus: $('#since-status'),
+    annivList: $('#anniv-list'),
+    pushToggle: $('#push-toggle'),
+    pushStatus: $('#push-status'),
+    pushChange: $('#push-change'),
+    pushAnniv: $('#push-anniv'),
+    pushTime: $('#push-time'),
+    rowPushChange: $('#row-push-change'),
+    rowPushAnniv: $('#row-push-anniv'),
+    rowPushTime: $('#row-push-time'),
+    headSub: $('#head-sub'),
+    roomChip: $('#room-chip'),
+    roomChipText: $('#room-chip-text'),
+    headShare: $('#btn-head-share'),
+    viewTimeline: $('#view-timeline'),
+    viewPhotos: $('#view-photos'),
+    viewSettings: $('#view-settings'),
+    search: $('#search'),
+    searchClear: $('#search-clear'),
+    monthPills: $('#month-pills'),
+    resultCount: $('#result-count'),
+    timeline: $('#timeline'),
+    photoGroups: $('#photo-groups'),
+    fab: $('#fab'),
+    tabs: Array.prototype.slice.call(document.querySelectorAll('.tab')),
+
+    sheetBackdrop: $('#sheet-backdrop'),
+    sheet: $('#day-sheet'),
+    sheetTitle: $('#sheet-title'),
+    sheetClose: $('#sheet-close'),
+    form: $('#day-form'),
+    fDate: $('#f-date'),
+    fTitle: $('#f-title'),
+    fPlace: $('#f-place'),
+    fMemo: $('#f-memo'),
+    fPhotos: $('#f-photos'),
+    exifHint: $('#exif-hint'),
+    draftCount: $('#draft-count'),
+    draftEmpty: $('#draft-empty'),
+    draftGrid: $('#draft-grid'),
+    draftHint: $('#draft-hint'),
+    btnSave: $('#btn-save'),
+    btnDeleteDay: $('#btn-delete-day'),
+
+    dialogBackdrop: $('#dialog-backdrop'),
+    dialog: $('#dialog'),
+    dlgTitle: $('#dlg-title'),
+    dlgMsg: $('#dlg-msg'),
+    dlgActions: $('#dlg-actions'),
+
+    toast: $('#toast'),
+
+    lightbox: $('#lightbox'),
+    lbStage: $('#lb-stage'),
+    lbImg: $('#lb-img'),
+    lbCount: $('#lb-count'),
+    lbDate: $('#lb-date'),
+    lbTitle: $('#lb-title'),
+    lbCaption: $('#lb-caption'),
+    lbSaveCaption: $('#lb-save-caption'),
+    lbDownload: $('#lb-download'),
+    lbRemove: $('#lb-remove'),
+    lbPrev: $('#lb-prev'),
+    lbNext: $('#lb-next'),
+    lbClose: $('#lb-close'),
+
+    shareExplain: $('#share-explain'),
+    shareLocal: $('#share-local'),
+    shareLocalNote: $('#share-local-note'),
+    shareRoom: $('#share-room'),
+    shareLink: $('#share-link'),
+    shareStatus: $('#share-status'),
+    btnCreateRoom: $('#btn-create-room'),
+    btnCopyLink: $('#btn-copy-link'),
+    btnLeaveRoom: $('#btn-leave-room'),
+    joinBox: $('#join-box'),
+    joinRoom: $('#join-room'),
+    joinNote: $('#join-room-note'),
+    btnJoinRoom: $('#btn-join-room'),
+
+    setCloudName: $('#set-cloud-name'),
+    setPreset: $('#set-preset'),
+    btnSaveCloud: $('#btn-save-cloud'),
+    btnResetCloud: $('#btn-reset-cloud'),
+    cloudStatus: $('#cloud-status'),
+
+    qualityOptions: Array.prototype.slice.call(document.querySelectorAll('.qual-option')),
+    qualityStatus: $('#quality-status'),
+
+    setNickname: $('#set-nickname'),
+    btnSaveNick: $('#btn-save-nick'),
+    nickStatus: $('#nick-status'),
+
+    storeMode: $('#store-mode'),
+    storeDays: $('#store-days'),
+    storePhotos: $('#store-photos'),
+    storeNote: $('#store-note')
+  };
+
+  /* ---------------------------------------------------------------- 작은 도구 */
+  function pad2(n) { return n < 10 ? '0' + n : '' + n; }
+
+  function todayISO() {
+    const d = new Date();
+    return d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate());
+  }
+
+  function nowISO() { return new Date().toISOString(); }
+
+  function esc(value) {
+    return String(value == null ? '' : value)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+  }
+
+  function oneLine(value) { return String(value == null ? '' : value).replace(/\s+/g, ' ').trim(); }
+
+  function clampText(value, max) { return oneLine(value).slice(0, max); }
+
+  function clampMemo(value) {
+    return String(value == null ? '' : value).replace(/\r\n/g, '\n').trim().slice(0, MAX_MEMO);
+  }
+
+  function toInt(value) {
+    const n = parseInt(value, 10);
+    return isFinite(n) ? n : 0;
+  }
+
+  function parseISODate(text) {
+    const raw = String(text == null ? '' : text).trim();
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(raw)) return null;
+    const y = parseInt(raw.slice(0, 4), 10);
+    const m = parseInt(raw.slice(5, 7), 10);
+    const d = parseInt(raw.slice(8, 10), 10);
+    if (!(y >= 1900 && y <= 2200)) return null;
+    const probe = new Date(y, m - 1, d);
+    if (probe.getFullYear() !== y || probe.getMonth() !== m - 1 || probe.getDate() !== d) return null;
+    return probe;
+  }
+
+  function dateParts(iso) {
+    const dt = parseISODate(iso);
+    if (!dt) return null;
+    return { y: dt.getFullYear(), m: dt.getMonth() + 1, d: dt.getDate(), week: WEEK[dt.getDay()], dt };
+  }
+
+  function formatDayLabel(iso) {
+    const p = dateParts(iso);
+    if (!p) return iso || '';
+    return p.m + '월 ' + p.d + '일';
+  }
+
+  function formatDayFull(iso) {
+    const p = dateParts(iso);
+    if (!p) return iso || '';
+    const thisYear = new Date().getFullYear();
+    const year = p.y === thisYear ? '' : p.y + '년 ';
+    return year + p.m + '월 ' + p.d + '일 (' + p.week + ')';
+  }
+
+  function formatMonthKey(key) {
+    const y = key.slice(0, 4);
+    const m = parseInt(key.slice(5, 7), 10);
+    const thisYear = new Date().getFullYear();
+    return (String(y) === String(thisYear) ? '' : y + '. ') + m + '월';
+  }
+
+  function displayTitle(day) {
+    if (day && day.title) return day.title;
+    if (day && day.date) {
+      const p = dateParts(day.date);
+      if (p) return p.m + '월 ' + p.d + '일의 추억';
+    }
+    return '이름 없는 추억';
+  }
+
+  function nickname() { return oneLine(profile.nickname).slice(0, MAX_AUTHOR) || '익명'; }
+
+  function authorInitial(name) {
+    const text = String(name || '').trim();
+    return text ? text.slice(0, 1) : '·';
+  }
+
+  function photoCountOf(days) {
+    let n = 0;
+    (days || []).forEach((d) => { n += (d.photos || []).length; });
+    return n;
+  }
+
+  /* ---------------------------------------------------------------- 토스트 */
+  let toastTimer = null;
+
+  function toast(message) {
+    if (!el.toast) return;
+    el.toast.textContent = String(message || '');
+    el.toast.classList.add('show');
+    if (toastTimer) clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => { el.toast.classList.remove('show'); }, 2600);
+  }
+
+  /* ---------------------------------------------------------------- 다이얼로그 */
+  let dialogResolve = null;
+
+  function closeDialog(result) {
+    el.dialog.classList.add('hidden');
+    el.dialogBackdrop.classList.add('hidden');
+    lockBody();
+    const resolve = dialogResolve;
+    dialogResolve = null;
+    if (resolve) resolve(!!result);
+  }
+
+  function confirmDialog(options) {
+    const opts = options || {};
+    el.dlgTitle.textContent = opts.title || '확인';
+    el.dlgMsg.textContent = opts.message || '';
+    el.dlgActions.innerHTML = '';
+
+    const cancel = document.createElement('button');
+    cancel.type = 'button';
+    cancel.className = 'btn';
+    cancel.textContent = opts.cancel || '취소';
+    cancel.addEventListener('click', () => closeDialog(false));
+
+    const ok = document.createElement('button');
+    ok.type = 'button';
+    ok.className = 'btn ' + (opts.danger ? 'danger' : 'primary');
+    ok.textContent = opts.confirm || '확인';
+    ok.addEventListener('click', () => closeDialog(true));
+
+    el.dlgActions.appendChild(cancel);
+    el.dlgActions.appendChild(ok);
+    el.dialog.classList.remove('hidden');
+    el.dialogBackdrop.classList.remove('hidden');
+    lockBody();
+    return new Promise((resolve) => { dialogResolve = resolve; });
+  }
+
+  function lockBody() {
+    const open = (el.sheet && !el.sheet.classList.contains('hidden')) ||
+      (el.lightbox && !el.lightbox.classList.contains('hidden')) ||
+      (el.dialog && !el.dialog.classList.contains('hidden'));
+    document.body.classList.toggle('locked', open);
+  }
+
+  /* ---------------------------------------------------------------- 저장소 */
+  function readLsAlbum() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return null;
+      const parsed = JSON.parse(raw);
+      return parsed && typeof parsed === 'object' ? parsed : null;
+    } catch (e) { return null; }
+  }
+
+  function openIdb() {
+    return new Promise((resolve, reject) => {
+      if (!window.indexedDB) { reject(new Error('no-idb')); return; }
+      let request;
+      try { request = window.indexedDB.open(IDB_NAME, 1); } catch (e) { reject(e); return; }
+      request.onupgradeneeded = () => {
+        const db = request.result;
+        if (!db.objectStoreNames.contains(IDB_STORE)) db.createObjectStore(IDB_STORE);
+      };
+      request.onsuccess = () => resolve(request.result);
+      request.onerror = () => reject(request.error || new Error('idb-open'));
+      request.onblocked = () => reject(new Error('idb-blocked'));
+    });
+  }
+
+  function idbGet() {
+    return openIdb().then((db) => new Promise((resolve, reject) => {
+      let tx;
+      try { tx = db.transaction(IDB_STORE, 'readonly'); } catch (e) { reject(e); return; }
+      const req = tx.objectStore(IDB_STORE).get(IDB_KEY);
+      req.onsuccess = () => resolve(req.result || null);
+      req.onerror = () => reject(req.error || new Error('idb-read'));
+    }));
+  }
+
+  function idbPut(record) {
+    return openIdb().then((db) => new Promise((resolve, reject) => {
+      let tx;
+      try { tx = db.transaction(IDB_STORE, 'readwrite'); } catch (e) { reject(e); return; }
+      tx.objectStore(IDB_STORE).put(record, IDB_KEY);
+      tx.oncomplete = () => resolve(true);
+      tx.onerror = () => reject(tx.error || new Error('idb-write'));
+      tx.onabort = () => reject(tx.error || new Error('idb-abort'));
+    }));
+  }
+
+  async function loadAlbum() {
+    try {
+      const record = await idbGet();
+      store.mode = 'idb';
+      store.error = '';
+      if (record && record.album) return record.album;
+      /* 처음 한 번: 예전 localStorage 사본을 IndexedDB 로 옮깁니다. */
+      const old = readLsAlbum();
+      if (old) {
+        try { await idbPut({ album: old, savedAt: nowISO() }); } catch (e) { /* 그냥 계속 */ }
+        return old;
+      }
+      return null;
+    } catch (err) {
+      store.mode = 'ls';
+      store.error = '';
+      return readLsAlbum();
+    }
+  }
+
+  async function persistLocal() {
+    const record = { album: { version: APP_VERSION, days: local.days }, savedAt: nowISO() };
+    if (store.mode === 'idb') {
+      try { await idbPut(record); return; }
+      catch (err) {
+        store.mode = 'ls';
+        store.error = String((err && err.message) || err);
+      }
+    }
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(record.album));
+    } catch (err) {
+      throw new Error('storage-full');
+    }
+  }
+
+  async function readPersisted() {
+    if (store.mode === 'idb') {
+      try {
+        const rec = await idbGet();
+        return rec || null;
+      } catch (e) { /* localStorage 로 */ }
+    }
+    const raw = readLsAlbum();
+    return raw ? { album: raw, savedAt: '' } : null;
+  }
+
+  /* ---------------------------------------------------------------- 프로필 · Cloudinary 설정 */
+  function loadProfile() {
+    try {
+      const raw = localStorage.getItem(PROFILE_KEY);
+      const obj = raw ? JSON.parse(raw) : null;
+      profile.nickname = clampText(obj && obj.nickname, MAX_AUTHOR);
+    } catch (e) { profile.nickname = ''; }
+  }
+
+  function saveProfile(nick) {
+    profile.nickname = clampText(nick, MAX_AUTHOR);
+    try { localStorage.setItem(PROFILE_KEY, JSON.stringify({ nickname: profile.nickname })); } catch (e) {}
+  }
+
+  /* 저장된 설정이 있으면 그것을, 없으면 위 기본 설정을 씁니다.
+     (설정 화면에서 비우면 { cloudName: '', uploadPreset: '' } 로 저장되어
+      기본 설정도 쓰지 않습니다.) */
+  function storedCloudinary() {
+    try {
+      const raw = localStorage.getItem(CLOUDINARY_KEY);
+      if (!raw) return null;
+      const obj = JSON.parse(raw);
+      if (!obj || typeof obj !== 'object') return null;
+      return {
+        cloudName: String(obj.cloudName || '').trim(),
+        uploadPreset: String(obj.uploadPreset || '').trim()
+      };
+    } catch (e) { return null; }
+  }
+
+  function cloudinaryConfig() {
+    const mine = storedCloudinary();
+    if (mine) return mine;
+    return { cloudName: DEFAULT_CLOUDINARY.cloudName, uploadPreset: DEFAULT_CLOUDINARY.uploadPreset };
+  }
+
+  function hasCloudinary() {
+    const cfg = cloudinaryConfig();
+    return !!(cfg.cloudName && cfg.uploadPreset);
+  }
+
+  function saveCloudinaryConfig(cfg) {
+    const clean = {
+      cloudName: String((cfg && cfg.cloudName) || '').trim(),
+      uploadPreset: String((cfg && cfg.uploadPreset) || '').trim()
+    };
+    try { localStorage.setItem(CLOUDINARY_KEY, JSON.stringify(clean)); } catch (e) {}
+    return clean;
+  }
+
+  /* ---------------------------------------------------------------- 사진 파일 · EXIF */
+  const PHOTO_PATTERN = /^data:image\/(?:jpeg|jpg|png|webp|gif);base64,[A-Za-z0-9+/]+={0,2}$/;
+
+  function isPhotoUrl(url) {
+    const text = String(url || '');
+    if (!text) return false;
+    if (/^https:\/\//i.test(text)) return true;
+    return PHOTO_PATTERN.test(text);
+  }
+
+  const BITMAP_RESIZE_MIN_BYTES = 3 * 1024 * 1024;
+  let bitmapResizeSupport = null;
+
+  function supportsBitmapResize() {
+    if (bitmapResizeSupport) return bitmapResizeSupport;
+    bitmapResizeSupport = new Promise((resolve) => {
+      let settled = false;
+      const done = (value) => { if (!settled) { settled = true; resolve(!!value); } };
+      if (!window.createImageBitmap) { done(false); return; }
+      let canvas = null;
+      try { canvas = document.createElement('canvas'); canvas.width = 8; canvas.height = 4; } catch (e) { done(false); return; }
+      if (!canvas.toBlob) { done(false); return; }
+      setTimeout(() => done(false), 1500);
+      try {
+        canvas.toBlob((blob) => {
+          if (!blob) { done(false); return; }
+          let pending = null;
+          try { pending = window.createImageBitmap(blob, { resizeWidth: 4, resizeQuality: 'high' }); }
+          catch (e) { done(false); return; }
+          if (!pending || typeof pending.then !== 'function') { done(false); return; }
+          pending.then((bitmap) => {
+            const ok = !!bitmap && bitmap.width === 4;
+            if (bitmap && bitmap.close) { try { bitmap.close(); } catch (e2) {} }
+            done(ok);
+          }, () => done(false));
+        }, 'image/png');
+      } catch (e3) { done(false); }
+    });
+    return bitmapResizeSupport;
+  }
+
+  function decodeWithBitmap(file, targetMaxDim) {
+    return new Promise((resolve, reject) => {
+      const options = { imageOrientation: 'from-image' };
+      if (targetMaxDim > 0 && file && file.size > BITMAP_RESIZE_MIN_BYTES) {
+        options.resizeWidth = Math.round(targetMaxDim);
+        options.resizeQuality = 'high';
+      }
+      let pending = null;
+      try { pending = window.createImageBitmap(file, options); } catch (e) { reject(new Error('decode-failed')); return; }
+      if (!pending || typeof pending.then !== 'function') { reject(new Error('decode-failed')); return; }
+      pending.then(resolve, () => reject(new Error('decode-failed')));
+    });
+  }
+
+  function decodeWithElement(file) {
+    return new Promise((resolve, reject) => {
+      let url = '';
+      try { url = URL.createObjectURL(file); } catch (e) { reject(new Error('decode-failed')); return; }
+      const img = new Image();
+      img.onload = () => { resolve(img); };
+      img.onerror = () => { try { URL.revokeObjectURL(url); } catch (e) {} reject(new Error('decode-failed')); };
+      img.src = url;
+    });
+  }
+
+  /* 가능하면 createImageBitmap 으로 폰 사진의 회전(EXIF orientation)까지 반영해 열고,
+     큰 사진은 처음부터 줄여서 열어 메모리를 아낍니다. */
+  function decodeImage(file, targetMaxDim) {
+    const limit = targetMaxDim > 0 ? Math.round(targetMaxDim) : 0;
+    if (!window.createImageBitmap) return decodeWithElement(file);
+    return supportsBitmapResize().then((canResize) => decodeWithBitmap(file, canResize ? limit : 0).then(null, () => decodeWithElement(file)));
+  }
+
+  function drawScaled(source, width, height, maxDim, quality) {
+    const scale = Math.min(1, maxDim / Math.max(width, height));
+    const w = Math.max(1, Math.round(width * scale));
+    const h = Math.max(1, Math.round(height * scale));
+    const canvas = document.createElement('canvas');
+    canvas.width = w;
+    canvas.height = h;
+    const ctx = canvas.getContext ? canvas.getContext('2d') : null;
+    if (!ctx) throw new Error('no-canvas');
+    ctx.fillStyle = '#FFFFFF';
+    ctx.fillRect(0, 0, w, h);
+    try { if ('imageSmoothingQuality' in ctx) ctx.imageSmoothingQuality = 'high'; } catch (e) {}
+    ctx.drawImage(source, 0, 0, w, h);
+    const url = canvas.toDataURL('image/jpeg', quality);
+    if (!url || url.indexOf('data:image/') !== 0 || url.length < 32) throw new Error('encode-failed');
+    return { url: url, width: w, height: h };
+  }
+
+  function canvasBlob(source, width, height, maxDim, quality, type) {
+    return new Promise((resolve, reject) => {
+      const scale = Math.min(1, maxDim / Math.max(width, height));
+      const w = Math.max(1, Math.round(width * scale));
+      const h = Math.max(1, Math.round(height * scale));
+      const canvas = document.createElement('canvas');
+      canvas.width = w;
+      canvas.height = h;
+      const ctx = canvas.getContext ? canvas.getContext('2d') : null;
+      if (!ctx) { reject(new Error('no-canvas')); return; }
+      ctx.fillStyle = '#FFFFFF';
+      ctx.fillRect(0, 0, w, h);
+      try { if ('imageSmoothingQuality' in ctx) ctx.imageSmoothingQuality = 'high'; } catch (e) {}
+      ctx.drawImage(source, 0, 0, w, h);
+      try {
+        canvas.toBlob((blob) => {
+          if (blob) resolve({ blob: blob, width: w, height: h });
+          else reject(new Error('encode-failed'));
+        }, type || 'image/jpeg', quality);
+      } catch (e2) { reject(e2); }
+    });
+  }
+
+  function closeSource(source) {
+    if (!source) return;
+    if (source.close) { try { source.close(); } catch (e) {} return; }
+    try { if (source.src && source.src.indexOf('blob:') === 0) URL.revokeObjectURL(source.src); } catch (e) {}
+  }
+
+  function readPhotoBytes(file) {
+    return new Promise((resolve, reject) => {
+      if (file && typeof file.arrayBuffer === 'function') {
+        let pending = null;
+        try { pending = file.arrayBuffer(); } catch (e0) { pending = null; }
+        if (pending && typeof pending.then === 'function') { pending.then(resolve, reject); return; }
+      }
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = () => reject(new Error('read-failed'));
+      try { reader.readAsArrayBuffer(file); } catch (e1) { reject(e1); }
+    });
+  }
+
+  /* "2025:08:14 16:30:00" → { date: '2025-08-14', time: '16:30:00' } */
+  function exifDateTime(text) {
+    const m = /^\s*(\d{4})[:\-/.w](\d{1,2})[:\-/.w](\d{1,2})(?:[ T](\d{1,2}):(\d{2})(?::(\d{2}))?)?/.exec(String(text == null ? '' : text));
+    if (!m) return { date: '', time: '' };
+    const date = exifDateToISO(m[1] + '-' + m[2] + '-' + m[3]);
+    if (!date) return { date: '', time: '' };
+    let time = '';
+    if (m[4] != null && m[5] != null) {
+      const hh = parseInt(m[4], 10);
+      const mm = parseInt(m[5], 10);
+      const ss = m[6] != null ? parseInt(m[6], 10) : 0;
+      if (hh <= 23 && mm <= 59 && ss <= 59) time = pad2(hh) + ':' + pad2(mm) + ':' + pad2(ss);
+    }
+    return { date: date, time: time };
+  }
+
+  function exifDateToISO(text) {
+    const m = /^\s*(\d{4})[:\-/.](\d{1,2})[:\-/.](\d{1,2})/.exec(String(text == null ? '' : text));
+    if (!m) return '';
+    const y = parseInt(m[1], 10);
+    const mo = parseInt(m[2], 10);
+    const d = parseInt(m[3], 10);
+    if (!(y >= 1900 && y <= 2100)) return '';
+    if (!(mo >= 1 && mo <= 12)) return '';
+    if (!(d >= 1 && d <= 31)) return '';
+    const probe = new Date(y, mo - 1, d);
+    if (probe.getFullYear() !== y || probe.getMonth() !== mo - 1 || probe.getDate() !== d) return '';
+    return y + '-' + pad2(mo) + '-' + pad2(d);
+  }
+
+  /* TIFF(IFD0 + ExifIFD) 를 훑어 0x9003 → 0x9004 → 0x0132 순서로 찾습니다. */
+  function dateFromTiff(bytes, start, end) {
+    if (start + 8 > end) return '';
+    let little;
+    if (bytes[start] === 0x49 && bytes[start + 1] === 0x49) little = true;
+    else if (bytes[start] === 0x4D && bytes[start + 1] === 0x4D) little = false;
+    else return '';
+
+    function u16(at) {
+      if (at < 0 || at + 2 > end) return -1;
+      return little ? (bytes[at] | (bytes[at + 1] << 8)) : ((bytes[at] << 8) | bytes[at + 1]);
+    }
+
+    function u32(at) {
+      if (at < 0 || at + 4 > end) return -1;
+      if (little) return (bytes[at] | (bytes[at + 1] << 8) | (bytes[at + 2] << 16) | (bytes[at + 3] << 24)) >>> 0;
+      return ((bytes[at] << 24) | (bytes[at + 1] << 16) | (bytes[at + 2] << 8) | bytes[at + 3]) >>> 0;
+    }
+
+    if (u16(start + 2) !== 0x002A) return '';
+
+    const found = {};
+
+    function readIfd(offset) {
+      const at = start + offset;
+      const count = u16(at);
+      if (count < 0 || count > 512) return -1;
+      let exifOffset = -1;
+      for (let i = 0; i < count; i++) {
+        const entry = at + 2 + i * 12;
+        if (entry + 12 > end) break;
+        const tag = u16(entry);
+        if (tag < 0) break;
+        if (tag === 0x8769) { exifOffset = u32(entry + 8); continue; }
+        if (tag !== 0x9003 && tag !== 0x9004 && tag !== 0x0132) continue;
+        const type = u16(entry + 2);
+        const length = u32(entry + 4);
+        if (type !== 2 || length < 10 || length > 64) continue;
+        const valueAt = length <= 4 ? entry + 8 : start + u32(entry + 8);
+        let text = '';
+        for (let k = 0; k < length; k++) {
+          const at2 = valueAt + k;
+          if (at2 < 0 || at2 >= end) break;
+          const ch = bytes[at2];
+          if (ch === 0) break;
+          text += String.fromCharCode(ch);
+        }
+        const parsed = exifDateTime(text);
+        if (parsed.date && !found[tag]) found[tag] = parsed;
+      }
+      return exifOffset;
+    }
+
+    const ifd0 = u32(start + 4);
+    if (ifd0 < 0 || ifd0 === 0xFFFFFFFF) return '';
+    const exifIfd = readIfd(ifd0);
+    if (exifIfd > 0 && exifIfd !== 0xFFFFFFFF) readIfd(exifIfd);
+    return found[0x9003] || found[0x9004] || found[0x0132] || '';
+  }
+
+  /* JPEG → { date, time }. 없거나 이상하면 ''. */
+  function extractExifTaken(buffer) {
+    try {
+      if (!buffer) return { date: '', time: '' };
+      const bytes = (buffer && buffer.BYTES_PER_ELEMENT) ? buffer : new Uint8Array(buffer);
+      const end = bytes.length;
+      if (end < 4 || bytes[0] !== 0xFF || bytes[1] !== 0xD8) return { date: '', time: '' };
+
+      let pos = 2;
+      while (pos + 4 <= end) {
+        if (bytes[pos] !== 0xFF) { pos += 1; continue; }
+        const marker = bytes[pos + 1];
+        if (marker === 0xFF) { pos += 1; continue; }
+        if (marker === 0xD8 || marker === 0x01 || (marker >= 0xD0 && marker <= 0xD7)) { pos += 2; continue; }
+        if (marker === 0xD9 || marker === 0xDA) break;
+        const length = (bytes[pos + 2] << 8) | bytes[pos + 3];
+        if (length < 2) break;
+        const segStart = pos + 4;
+        const segEnd = Math.min(pos + 2 + length, end);
+        if (marker === 0xE1 && segStart + 6 <= segEnd &&
+            bytes[segStart] === 0x45 && bytes[segStart + 1] === 0x78 &&
+            bytes[segStart + 2] === 0x69 && bytes[segStart + 3] === 0x66 &&
+            bytes[segStart + 4] === 0x00 && bytes[segStart + 5] === 0x00) {
+          const found = dateFromTiff(bytes, segStart + 6, segEnd);
+          if (found && found.date) return found;
+        }
+        pos = pos + 2 + length;
+      }
+    } catch (err) {}
+    return { date: '', time: '' };
+  }
+
+  function extractExifDate(buffer) { return extractExifTaken(buffer).date; }
+
+  /* ---------------------------------------------------------------- 올리기 화질 */
+  function normalizeUploadQuality(value) {
+    const text = String(value == null ? '' : value).trim().toLowerCase();
+    return text === UPLOAD_MODE_ORIGINAL ? UPLOAD_MODE_ORIGINAL : DEFAULT_UPLOAD_MODE;
+  }
+
+  function readUploadQuality() {
+    try { return normalizeUploadQuality(localStorage.getItem(UPLOAD_QUALITY_KEY) || ''); }
+    catch (e) { return DEFAULT_UPLOAD_MODE; }
+  }
+
+  /* 지금 고른 화질: 'eco' | 'original' */
+  function uploadQuality() {
+    if (!state.uploadQuality) state.uploadQuality = readUploadQuality();
+    return state.uploadQuality;
+  }
+
+  function saveUploadQuality(mode) {
+    const next = normalizeUploadQuality(mode);
+    state.uploadQuality = next;
+    try { localStorage.setItem(UPLOAD_QUALITY_KEY, next); } catch (e) {}
+    return next;
+  }
+
+  /* 이 사진을 다시 인코딩해야 하는지 (긴 변·용량은 열어 봐야 알 수 있습니다). */
+  function shouldCompress(bytes) { return toInt(bytes) > UPLOAD_DIRECT_LIMIT; }
+
+  /* 사진을 올리기 전에 한 번 다듬습니다.
+     eco      : 긴 변 1600px·0.85 JPEG 로 줄입니다(이미 작고 가벼우면 그대로).
+     original : 10MB 이하는 그대로, 넘는 사진만 긴 변 2600px 로 줄입니다. */
+  async function prepareUploadBlob(file, mode) {
+    if (!file) throw new Error('no-file');
+    const quality = normalizeUploadQuality(mode || uploadQuality());
+    const eco = quality === UPLOAD_MODE_ECO;
+    if (!eco && file.size <= UPLOAD_DIRECT_LIMIT) {
+      return { blob: file, width: 0, height: 0, compressed: false, quality: quality };
+    }
+    const maxSide = eco ? ECO_UPLOAD_MAX_SIDE : UPLOAD_MAX_SIDE;
+    const source = await decodeImage(file, maxSide + 400);
+    const width = source.width || source.naturalWidth || 0;
+    const height = source.height || source.naturalHeight || 0;
+    if (!width || !height) { closeSource(source); throw new Error('empty-image'); }
+    if (eco && Math.max(width, height) <= ECO_UPLOAD_MAX_SIDE && file.size <= ECO_KEEP_BYTES) {
+      closeSource(source);
+      return { blob: file, width: width, height: height, compressed: false, quality: quality };
+    }
+    const out = await canvasBlob(source, width, height, maxSide,
+      eco ? ECO_UPLOAD_QUALITY : UPLOAD_QUALITY, 'image/jpeg');
+    closeSource(source);
+    return { blob: out.blob, width: out.width, height: out.height, compressed: true, quality: quality };
+  }
+
+  /* Cloudinary 없이 이 기기에 담을 때: 긴 변 1600px + 480px 썸네일 data URL */
+  async function localPhotoFromFile(file) {
+    const source = await decodeImage(file, 1800);
+    const width = source.width || source.naturalWidth || 0;
+    const height = source.height || source.naturalHeight || 0;
+    if (!width || !height) { closeSource(source); throw new Error('empty-image'); }
+    const full = drawScaled(source, width, height, LOCAL_PHOTO_MAX_SIDE, LOCAL_PHOTO_QUALITY);
+    const thumb = drawScaled(source, width, height, LOCAL_THUMB_SIDE, LOCAL_THUMB_QUALITY);
+    closeSource(source);
+    return { url: full.url, thumbUrl: thumb.url, width: full.width, height: full.height };
+  }
+
+  function imageErrorText(err, file) {
+    const code = String((err && err.message) || err || '');
+    const name = String((file && file.name) || '').toLowerCase();
+    if (/heic|heif/.test(name) || /heic/i.test(code)) {
+      return '아이폰 HEIC 사진은 브라우저에서 열 수 없어요. 설정 > 카메라 > 포맷을 "높은 호환성"으로 바꾸면 JPG로 찍혀요.';
+    }
+    if (code === 'encode-failed') return '사진을 줄이지 못했어요. 다른 사진으로 해 보세요.';
+    return '사진을 열지 못했어요. 다른 사진으로 해 보세요.';
+  }
+
+  /* ---------------------------------------------------------------- Cloudinary */
+  function cloudinaryTransform(url, transform) {
+    const text = String(url || '');
+    const at = text.indexOf('/image/upload/');
+    if (at === -1) return text;
+    const head = text.slice(0, at + '/image/upload/'.length);
+    const rest = text.slice(at + '/image/upload/'.length);
+    if (rest.indexOf(transform + '/') === 0) return text;
+    return head + transform + '/' + rest;
+  }
+
+  function thumbUrlFor(photo) {
+    if (!photo) return '';
+    if (photo.thumbUrl) return photo.thumbUrl;
+    if (photo.publicId) return cloudinaryTransform(photo.url, 'w_600,q_auto,f_auto');
+    return photo.url;
+  }
+
+  /* 라이트박스에 보여 줄 크기 — 원본은 내려받을 때만 씁니다. */
+  function viewUrlFor(photo) {
+    if (!photo) return '';
+    if (photo.publicId) return cloudinaryTransform(photo.url, 'w_1600,q_auto,f_auto');
+    return photo.url;
+  }
+
+  function downloadUrlFor(photo) {
+    if (!photo) return '';
+    if (photo.publicId) return cloudinaryTransform(photo.url, 'fl_attachment');
+    return photo.url;
+  }
+
+  function downloadNameOf(day, photo) {
+    const base = '추억-' + (day && day.date ? day.date : todayISO());
+    const ext = (photo && photo.publicId) ? 'jpg' : (/^data:image\/png/.test(photo.url) ? 'png' : 'jpg');
+    return base + '.' + ext;
+  }
+
+  function uploadPhoto(file, folder, onProgress) {
+    return new Promise((resolve, reject) => {
+      const cfg = cloudinaryConfig();
+      if (!cfg.cloudName || !cfg.uploadPreset) { reject(new Error('cloudinary-not-configured')); return; }
+      const form = new FormData();
+      form.append('file', file);
+      form.append('upload_preset', cfg.uploadPreset);
+      form.append('folder', folder);
+      const xhr = new XMLHttpRequest();
+      xhr.open('POST', 'https://api.cloudinary.com/v1_1/' + encodeURIComponent(cfg.cloudName) + '/image/upload');
+      xhr.upload.onprogress = (event) => {
+        if (onProgress && event.lengthComputable && event.total) {
+          onProgress(Math.min(99, Math.round((event.loaded / event.total) * 100)));
+        }
+      };
+      xhr.onload = () => {
+        let json = null;
+        try { json = JSON.parse(xhr.responseText || '{}'); } catch (e) { json = null; }
+        if (xhr.status >= 200 && xhr.status < 300 && json && (json.secure_url || json.url)) {
+          if (onProgress) onProgress(100);
+          resolve(json);
+          return;
+        }
+        const message = (json && json.error && json.error.message) || ('HTTP ' + xhr.status);
+        reject(new Error(message));
+      };
+      xhr.onerror = () => reject(new Error('network'));
+      xhr.ontimeout = () => reject(new Error('timeout'));
+      xhr.send(form);
+    });
+  }
+
+  function uploadErrorMessage(err) {
+    const text = String((err && err.message) || err || '').toLowerCase();
+    if (text.indexOf('cloudinary-not-configured') !== -1) return 'Cloudinary 설정이 없어 올리지 못했어요.';
+    if (text.indexOf('network') !== -1) return '인터넷 연결을 확인해 주세요.';
+    if (text.indexOf('preset') !== -1 || text.indexOf('unsigned') !== -1) return 'Upload preset 이름과 Unsigned 설정을 확인해 주세요.';
+    if (text.indexOf('cloud') !== -1 && text.indexOf('name') !== -1) return 'Cloud name 을 확인해 주세요.';
+    if (text.indexOf('401') !== -1 || text.indexOf('403') !== -1) return 'Cloudinary 가 업로드를 거절했어요 (preset 확인).';
+    return '사진을 올리지 못했어요: ' + String((err && err.message) || '알 수 없는 오류');
+  }
+
+  /* data URL 사진을 Firestore 문서 한도 안으로 줄입니다(혼자 모드에서 만든 사진을 공유할 때). */
+  function shrinkDataUrl(dataUrl, maxChars) {
+    return new Promise((resolve) => {
+      if (!dataUrl || dataUrl.length <= maxChars) { resolve(dataUrl || ''); return; }
+      if (maxChars < 20000) { resolve(''); return; }
+      const img = new Image();
+      img.onload = () => {
+        const width = img.naturalWidth || img.width;
+        const height = img.naturalHeight || img.height;
+        if (!width || !height) { resolve(''); return; }
+        const steps = [[1400, 0.8], [1200, 0.76], [1000, 0.7], [820, 0.62], [640, 0.55], [480, 0.46]];
+        for (let i = 0; i < steps.length; i++) {
+          let out = '';
+          try { out = drawScaled(img, width, height, steps[i][0], steps[i][1]).url; } catch (e) { out = ''; }
+          if (out && out.length <= maxChars) { resolve(out); return; }
+        }
+        resolve('');
+      };
+      img.onerror = () => resolve('');
+      img.src = dataUrl;
+    });
+  }
+
+  /* ---------------------------------------------------------------- 데이터 다듬기 */
+  function makeDayId() { return 'd' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
+  function makePhotoId() { return 'p' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
+
+  function normalizeId(value) {
+    const text = String(value == null ? '' : value);
+    return /^[A-Za-z0-9_-]{1,40}$/.test(text) ? text : '';
+  }
+
+  function normalizePhoto(raw) {
+    if (!raw || typeof raw !== 'object') return null;
+    const url = String(raw.url || '');
+    if (!isPhotoUrl(url)) return null;
+    const photo = {
+      id: normalizeId(raw.id) || makePhotoId(),
+      url: url,
+      thumbUrl: isPhotoUrl(raw.thumbUrl) ? String(raw.thumbUrl) : '',
+      publicId: String(raw.publicId || '').slice(0, 200),
+      caption: clampText(raw.caption, MAX_CAPTION),
+      takenAt: String(raw.takenAt || '').slice(0, 40),
+      width: Math.max(0, Math.min(20000, toInt(raw.width))),
+      height: Math.max(0, Math.min(20000, toInt(raw.height))),
+      author: clampText(raw.author, MAX_AUTHOR),
+      addedAt: String(raw.addedAt || '').slice(0, 40)
+    };
+    if (!photo.thumbUrl) photo.thumbUrl = thumbUrlFor(photo);
+    return photo;
+  }
+
+  function normalizeDay(raw) {
+    if (!raw || typeof raw !== 'object') return null;
+    const date = String(raw.date || '').trim();
+    if (!parseISODate(date)) return null;
+    const photos = [];
+    const used = {};
+    const list = Array.isArray(raw.photos) ? raw.photos : [];
+    for (let i = 0; i < list.length; i++) {
+      const photo = normalizePhoto(list[i]);
+      if (!photo) continue;
+      while (used[photo.id]) photo.id = makePhotoId();
+      used[photo.id] = true;
+      photos.push(photo);
+    }
+    sortPhotos(photos);
+    return {
+      id: normalizeId(raw.id) || makeDayId(),
+      date: date,
+      title: clampText(raw.title, MAX_TITLE),
+      place: clampText(raw.place, MAX_PLACE),
+      memo: clampMemo(raw.memo),
+      author: clampText(raw.author, MAX_AUTHOR),
+      createdAt: String(raw.createdAt || '').slice(0, 40) || nowISO(),
+      updatedAt: String(raw.updatedAt || '').slice(0, 40) || nowISO(),
+      photos: photos
+    };
+  }
+
+  function sortPhotos(list) {
+    list.sort((a, b) => {
+      const at = a.takenAt || a.addedAt || '';
+      const bt = b.takenAt || b.addedAt || '';
+      if (at && bt && at !== bt) return at < bt ? -1 : 1;
+      if (at && !bt) return -1;
+      if (!at && bt) return 1;
+      return String(a.id).localeCompare(String(b.id));
+    });
+    return list;
+  }
+
+  function sortDays(list) {
+    list.sort((a, b) => {
+      if (a.date !== b.date) return a.date < b.date ? 1 : -1;
+      return String(b.createdAt).localeCompare(String(a.createdAt));
+    });
+    return list;
+  }
+
+  function sanitizeAlbum(raw) {
+    const days = [];
+    const used = {};
+    const list = raw && Array.isArray(raw.days) ? raw.days : [];
+    for (let i = 0; i < list.length; i++) {
+      const day = normalizeDay(list[i]);
+      if (!day) continue;
+      while (used[day.id]) day.id = makeDayId();
+      used[day.id] = true;
+      days.push(day);
+    }
+    sortDays(days);
+    return { version: APP_VERSION, days: days };
+  }
+
+  /* ---------------------------------------------------------------- 앨범 조작 */
+  function findDay(id) {
+    for (let i = 0; i < state.days.length; i++) {
+      if (state.days[i].id === id) return state.days[i];
+    }
+    return null;
+  }
+
+  function useLocalAlbum() {
+    state.days = local.days;
+  }
+
+  async function commitDay(day) {
+    day.updatedAt = nowISO();
+    if (shared.active) {
+      await saveDayShared(day);
+      return;
+    }
+    const idx = local.days.findIndex((d) => d.id === day.id);
+    if (idx >= 0) local.days[idx] = day; else local.days.push(day);
+    sortDays(local.days);
+    await persistLocal();
+    renderHeader();
+    renderTimeline();
+    renderPhotos();
+    renderSettings('storage');
+  }
+
+  async function deleteDay(day) {
+    if (shared.active) {
+      await deleteDayShared(day.id);
+      return;
+    }
+    const idx = local.days.findIndex((d) => d.id === day.id);
+    if (idx >= 0) local.days.splice(idx, 1);
+    await persistLocal();
+    renderAll();
+  }
+
+  /* ---------------------------------------------------------------- Firestore 공유 */
+  function normalizeRoomId(raw) {
+    const text = String(raw == null ? '' : raw).toLowerCase().replace(/[^a-z0-9-]/g, '');
+    return text.slice(0, 40);
+  }
+
+  function randomRoomId() {
+    const alphabet = 'abcdefghijkmnpqrstuvwxyz23456789';
+    let bytes = null;
+    try { bytes = new Uint8Array(8); window.crypto.getRandomValues(bytes); } catch (e) { bytes = null; }
+    let out = 'album-';
+    for (let i = 0; i < 8; i++) {
+      const n = bytes ? bytes[i] : Math.floor(Math.random() * 256);
+      out += alphabet.charAt(n % alphabet.length);
+    }
+    return out;
+  }
+
+  function roomFromUrl() {
+    let search = '';
+    try { search = String(window.location.search || ''); } catch (e) { search = ''; }
+    const match = search.match(/[?&]room=([^&]*)/);
+    if (!match) return '';
+    let value = match[1];
+    try { value = decodeURIComponent(value); } catch (e2) { value = match[1]; }
+    return normalizeRoomId(value);
+  }
+
+  function shareUrlFor(roomId) {
+    let base = '';
+    try { base = window.location.origin + window.location.pathname; } catch (e) { base = ''; }
+    return base + '?room=' + encodeURIComponent(roomId);
+  }
+
+  function setShareUrl(roomId) {
+    try {
+      if (!window.history || !window.history.replaceState) return;
+      const base = window.location.origin + window.location.pathname;
+      const next = roomId ? (base + '?room=' + encodeURIComponent(roomId)) : base;
+      window.history.replaceState(null, '', next + String(window.location.hash || ''));
+    } catch (e) {}
+  }
+
+  function rememberRoom(roomId) {
+    try {
+      if (roomId) localStorage.setItem(SHARE_ROOM_KEY, roomId);
+      else localStorage.removeItem(SHARE_ROOM_KEY);
+    } catch (e) {}
+  }
+
+  function lastRoomId() {
+    try { return normalizeRoomId(localStorage.getItem(SHARE_ROOM_KEY) || ''); } catch (e) { return ''; }
+  }
+
+  /* 붙여 넣은 공유 링크나 방 ID 에서 방 ID 만 꺼냅니다.
+     …?room=album-xxxxxxxx 같은 주소와 album-xxxxxxxx 만 적은 경우를 모두 받습니다. */
+  function roomIdFromInput(raw) {
+    let text = String(raw == null ? '' : raw).trim();
+    if (!text) return '';
+    const match = text.match(/[?&#]room=([^&#\s]*)/i);
+    if (match) {
+      try { text = decodeURIComponent(match[1]); } catch (e) { text = match[1]; }
+    } else if (/[\s\/?#]/.test(text) || text.indexOf('room=') !== -1) {
+      /* 주소를 넣었는데 room 값이 없으면 앨범 링크가 아닙니다. */
+      return '';
+    }
+    return normalizeRoomId(text);
+  }
+
+  function usableRoomId(roomId) {
+    return /^[a-z0-9][a-z0-9-]{5,39}$/.test(String(roomId || ''));
+  }
+
+  function shareErrorMessage(err) {
+    const text = String((err && (err.code || err.message)) || '').toLowerCase();
+    if (text.indexOf('permission-denied') !== -1) return 'Firestore 규칙에 앨범 경로가 아직 없어요 (firestore.rules 게시 필요)';
+    if (text.indexOf('unavailable') !== -1 || text.indexOf('offline') !== -1) return '인터넷 연결을 확인해 주세요';
+    if (text.indexOf('not-found') !== -1) return 'Firestore 데이터베이스를 찾지 못했어요';
+    if (text.indexOf('api-key') !== -1) return 'Firebase 설정값(apiKey)을 확인해 주세요';
+    if (text.indexOf('too large') !== -1 || text.indexOf('invalid-argument') !== -1) return '내용이 너무 커서 올리지 못했어요';
+    return String((err && err.message) || '알 수 없는 오류');
+  }
+
+  function loadFirestore() {
+    if (shared.fs) return Promise.resolve(shared.fs);
+    const base = 'https://www.gstatic.com/firebasejs/' + FIREBASE_VERSION + '/';
+    return import(base + 'firebase-app.js').then((appMod) => import(base + 'firebase-firestore.js').then((fsMod) => {
+      const apps = typeof appMod.getApps === 'function' ? appMod.getApps() : [];
+      const app = (apps && apps.length) ? appMod.getApp() : appMod.initializeApp(FIREBASE_CONFIG);
+      shared.fs = { app: app, db: fsMod.getFirestore(app), mod: fsMod };
+      return shared.fs;
+    }));
+  }
+
+  function toTimestamp(value, mod) {
+    const date = value ? new Date(value) : new Date();
+    if (isNaN(date.getTime())) return mod.serverTimestamp();
+    try {
+      if (mod.Timestamp && typeof mod.Timestamp.fromDate === 'function') return mod.Timestamp.fromDate(date);
+    } catch (e) {}
+    return mod.serverTimestamp();
+  }
+
+  function isoFromStamp(value) {
+    if (!value) return '';
+    if (typeof value.toDate === 'function') {
+      try { return value.toDate().toISOString(); } catch (e) { return ''; }
+    }
+    if (typeof value === 'number') return new Date(value * 1000).toISOString();
+    const date = new Date(value);
+    return isNaN(date.getTime()) ? '' : date.toISOString();
+  }
+
+  function applyRoomMeta(meta) {
+    shared.room = meta || null;
+    if (!meta) return;
+    /* 혼자 쓰기로 돌아가도 남도록 이 기기에도 적어 둡니다 */
+    if (isSinceDate(meta.since)) saveLocalAnniv('since', meta.since);
+    if (isSinceDate(meta.wedding)) saveLocalAnniv('wedding', meta.wedding);
+    renderHeader();
+    renderAnnivCard();
+    const remote = meta.cloudinary;
+    if (remote && remote.cloudName && remote.uploadPreset) {
+      /* 이 기기에 저장된 설정이 없을 때만 방의 설정을 받아 둡니다.
+         (기본 설정만 있는 상태 = 저장된 값 없음) */
+      if (!storedCloudinary()) {
+        saveCloudinaryConfig(remote);
+        if (!shared.metaApplied) {
+          shared.metaApplied = true;
+          toast('함께 쓰는 앨범의 Cloudinary 설정을 가져왔어요.');
+        }
+      }
+    }
+  }
+
+  async function ensureRoom() {
+    const fs = shared.fs;
+    const mod = fs.mod;
+    const ref = mod.doc(fs.db, ALBUM_COLLECTION, shared.roomId);
+    if (typeof mod.getDoc === 'function') {
+      try {
+        const snap = await mod.getDoc(ref);
+        if (snap && typeof snap.exists === 'function' && snap.exists()) {
+          applyRoomMeta(snap.data());
+          return;
+        }
+      } catch (e) { /* 없으면 새로 만듭니다 */ }
+    }
+    await mod.setDoc(ref, {
+      name: '우리 사진첩',
+      createdAt: mod.serverTimestamp(),
+      updatedAt: mod.serverTimestamp()
+    });
+  }
+
+  function subscribeRoom() {
+    const fs = shared.fs;
+    const mod = fs.mod;
+    const ref = mod.doc(fs.db, ALBUM_COLLECTION, shared.roomId);
+    try {
+      shared.unsubRoom = mod.onSnapshot(ref, (snap) => {
+        if (!snap) return;
+        const exists = typeof snap.exists === 'function' ? snap.exists() : true;
+        if (!exists) return;
+        applyRoomMeta(snap.data());
+        renderSettings('share');
+      }, (err) => {
+        shared.error = shareErrorMessage(err);
+        renderSettings('share');
+        renderHeader();
+      });
+    } catch (e) { /* 문서 구독을 못 해도 날짜 구독은 계속합니다 */ }
+  }
+
+  function subscribeDays() {
+    const fs = shared.fs;
+    const mod = fs.mod;
+    const col = mod.collection(fs.db, ALBUM_COLLECTION, shared.roomId, 'days');
+    return new Promise((resolve) => {
+      let first = true;
+      const done = () => { if (first) { first = false; resolve(); } };
+      shared.unsubDays = mod.onSnapshot(col, (snap) => {
+        const raw = {};
+        snap.forEach((docSnap) => {
+          raw[docSnap.id] = Object.assign({}, docSnap.data(), { id: docSnap.id });
+        });
+        shared.rawDays = raw;
+        shared.error = '';
+        syncPhotoSubscriptions();
+        rebuildSharedDays();
+        done();
+      }, (err) => {
+        shared.error = shareErrorMessage(err);
+        if (!state.days.length) state.days = [];
+        renderAll();
+        done();
+      });
+    });
+  }
+
+  function syncPhotoSubscriptions() {
+    const keep = {};
+    Object.keys(shared.rawDays).forEach((id) => {
+      keep[id] = true;
+      subscribeDayPhotos(id);
+    });
+    Object.keys(shared.photoUnsub).forEach((id) => {
+      if (keep[id]) return;
+      try { shared.photoUnsub[id](); } catch (e) {}
+      delete shared.photoUnsub[id];
+      delete shared.photoMap[id];
+    });
+  }
+
+  function subscribeDayPhotos(dayId) {
+    if (shared.photoUnsub[dayId] || !shared.fs) return;
+    const fs = shared.fs;
+    const mod = fs.mod;
+    const col = mod.collection(fs.db, ALBUM_COLLECTION, shared.roomId, 'days', dayId, 'photos');
+    shared.photoUnsub[dayId] = mod.onSnapshot(col, (snap) => {
+      const photos = [];
+      snap.forEach((docSnap) => {
+        const photo = normalizePhoto(Object.assign({}, docSnap.data(), { id: docSnap.id }));
+        if (photo) photos.push(photo);
+      });
+      sortPhotos(photos);
+      shared.photoMap[dayId] = photos;
+      rebuildSharedDays();
+    }, (err) => {
+      shared.error = shareErrorMessage(err);
+      renderHeader();
+      renderSettings('share');
+    });
+  }
+
+  function rebuildSharedDays() {
+    const list = [];
+    Object.keys(shared.rawDays).forEach((id) => {
+      const raw = shared.rawDays[id];
+      const day = normalizeDay(Object.assign({}, raw, {
+        id: id,
+        createdAt: isoFromStamp(raw.createdAt) || nowISO(),
+        updatedAt: isoFromStamp(raw.updatedAt) || nowISO(),
+        photos: shared.photoMap[id] || []
+      }));
+      if (day) list.push(day);
+    });
+    sortDays(list);
+    state.days = list;
+    renderAll();
+    if (state.lb) renderLightbox();
+  }
+
+  function stopShared() {
+    /* 이 방에 등록해 둔 알림은 지웁니다(다른 방으로 옮기거나 혼자 쓰기로 돌아갈 때). */
+    if (push.registeredRoom) unregisterDevice(push.registeredRoom);
+    push.registeredRoom = '';
+    shared.active = false;
+    if (shared.unsubDays) { try { shared.unsubDays(); } catch (e) {} }
+    if (shared.unsubRoom) { try { shared.unsubRoom(); } catch (e) {} }
+    shared.unsubDays = null;
+    shared.unsubRoom = null;
+    Object.keys(shared.photoUnsub).forEach((id) => { try { shared.photoUnsub[id](); } catch (e) {} });
+    shared.photoUnsub = {};
+    shared.rawDays = {};
+    shared.photoMap = {};
+    shared.room = null;
+    shared.error = '';
+    shared.roomId = '';
+    shared.metaApplied = false;
+  }
+
+  async function startShared(roomId) {
+    shared.active = true;
+    shared.roomId = roomId;
+    shared.error = '';
+    rememberRoom(roomId);
+    setShareUrl(roomId);
+    state.days = [];
+    renderAll();
+    try {
+      await loadFirestore();
+      await ensureRoom();
+      subscribeRoom();
+      await subscribeDays();
+    } catch (err) {
+      shared.error = shareErrorMessage(err);
+      renderAll();
+      toast('공유 연결: ' + shared.error);
+    }
+    renderAll();
+    if (!shared.error && readPushSettings().enabled) syncPush(false);
+  }
+
+  function photoDocFor(photo, mod) {
+    const doc = {
+      url: String(photo.url || ''),
+      addedAt: toTimestamp(photo.addedAt || photo.takenAt, mod),
+      updatedAt: mod.serverTimestamp()
+    };
+    if (photo.thumbUrl) doc.thumbUrl = String(photo.thumbUrl);
+    if (photo.publicId) doc.publicId = String(photo.publicId);
+    if (photo.caption) doc.caption = String(photo.caption);
+    if (photo.takenAt) doc.takenAt = String(photo.takenAt);
+    if (photo.width) doc.width = toInt(photo.width);
+    if (photo.height) doc.height = toInt(photo.height);
+    if (photo.author) doc.author = String(photo.author);
+    return doc;
+  }
+
+  async function prepareSharePhoto(photo) {
+    let url = photo.url;
+    if (url.length > SHARE_PHOTO_MAX_CHARS) {
+      url = await shrinkDataUrl(url, SHARE_PHOTO_MAX_CHARS - 2000);
+      if (!url) throw new Error('photo-too-large');
+    }
+    const copy = Object.assign({}, photo, { url: url });
+    if (copy.thumbUrl && copy.thumbUrl.length > 300000) {
+      copy.thumbUrl = await shrinkDataUrl(copy.thumbUrl, 280000);
+      if (!copy.thumbUrl) copy.thumbUrl = '';
+    }
+    return copy;
+  }
+
+  async function syncPhotos(dayId, wanted, current) {
+    const fs = shared.fs;
+    const mod = fs.mod;
+    const room = shared.roomId;
+    const have = {};
+    (current || []).forEach((p) => { have[String(p.id)] = p; });
+    const keep = {};
+    const jobs = [];
+
+    for (let i = 0; i < (wanted || []).length; i++) {
+      const photo = wanted[i];
+      keep[String(photo.id)] = true;
+      const old = have[String(photo.id)];
+      if (old && old.url === photo.url && String(old.caption || '') === String(photo.caption || '') &&
+          String(old.takenAt || '') === String(photo.takenAt || '')) continue;
+      jobs.push((async () => {
+        let ready;
+        try { ready = await prepareSharePhoto(photo); }
+        catch (e) { toast('사진 한 장이 너무 커서 공유본에서 뺐어요.'); return; }
+        const ref = mod.doc(fs.db, ALBUM_COLLECTION, room, 'days', dayId, 'photos', String(photo.id));
+        await mod.setDoc(ref, photoDocFor(ready, mod));
+      })());
+    }
+
+    const gone = Object.keys(have).filter((id) => !keep[id]);
+    for (let j = 0; j < gone.length; j++) {
+      const ref = mod.doc(fs.db, ALBUM_COLLECTION, room, 'days', dayId, 'photos', gone[j]);
+      jobs.push(mod.deleteDoc(ref));
+    }
+    await Promise.all(jobs);
+  }
+
+  /* quiet=true 이면 알림을 보내지 않게 「누가 바꿨는지」를 적지 않습니다(혼자 쓰던 추억을 방으로 옮길 때). */
+  async function saveDayShared(day, quiet) {
+    const fs = shared.fs;
+    if (!fs) throw new Error('firestore-not-ready');
+    const mod = fs.mod;
+    const ref = mod.doc(fs.db, ALBUM_COLLECTION, shared.roomId, 'days', day.id);
+    const doc = {
+      date: day.date,
+      title: day.title || '',
+      place: day.place || '',
+      memo: day.memo || '',
+      author: day.author || '',
+      photoCount: Math.min((day.photos || []).length, 1000),
+      createdAt: toTimestamp(day.createdAt, mod),
+      updatedAt: mod.serverTimestamp()
+    };
+    if (!quiet) {
+      doc.editedBy = getDeviceId();
+      doc.editor = oneLine(profile.nickname).slice(0, MAX_AUTHOR);
+    }
+    try {
+      await mod.setDoc(ref, doc);
+    } catch (err) {
+      /* 알림용 칸을 모르는 예전 Firestore 규칙이면 그 칸 없이 다시 저장합니다(알림만 빠짐). */
+      if (String((err && (err.code || err.message)) || '').indexOf('permission-denied') === -1) throw err;
+      delete doc.editedBy;
+      delete doc.editor;
+      delete doc.photoCount;
+      await mod.setDoc(ref, doc);
+    }
+    await syncPhotos(day.id, day.photos, shared.photoMap[day.id] || []);
+  }
+
+  async function deleteDayShared(dayId) {
+    const fs = shared.fs;
+    if (!fs) throw new Error('firestore-not-ready');
+    const mod = fs.mod;
+    const photos = shared.photoMap[dayId] || [];
+    const jobs = photos.map((photo) =>
+      mod.deleteDoc(mod.doc(fs.db, ALBUM_COLLECTION, shared.roomId, 'days', dayId, 'photos', String(photo.id))));
+    jobs.push(mod.deleteDoc(mod.doc(fs.db, ALBUM_COLLECTION, shared.roomId, 'days', dayId)));
+    await Promise.all(jobs);
+  }
+
+  async function pushLocalDays(days) {
+    for (let i = 0; i < days.length; i++) {
+      const original = { photos: [], ...days[i] };
+      await saveDayShared(original, true);
+    }
+  }
+
+  async function saveCloudinaryToRoom() {
+    if (!shared.active || !shared.fs) return;
+    const cfg = cloudinaryConfig();
+    if (!cfg.cloudName || !cfg.uploadPreset) return;
+    const fs = shared.fs;
+    const mod = fs.mod;
+    try {
+      const ref = mod.doc(fs.db, ALBUM_COLLECTION, shared.roomId);
+      await mod.setDoc(ref, {
+        name: (shared.room && shared.room.name) || '우리 사진첩',
+        cloudinary: { cloudName: cfg.cloudName, uploadPreset: cfg.uploadPreset },
+        createdAt: (shared.room && shared.room.createdAt) || mod.serverTimestamp(),
+        updatedAt: mod.serverTimestamp()
+      }, { merge: true }); /* 기념일(since) 같은 다른 값은 그대로 둡니다 */
+    } catch (e) { /* 규칙이 막아도 내 기기 설정은 그대로 씁니다 */ }
+  }
+
+  /* ---------------------------------------------------------------- 화면: 헤더 */
+  function renderHeader() {
+    const days = state.days.length;
+    const photos = photoCountOf(state.days);
+    if (!days) {
+      el.headSub.textContent = '날짜마다 추억을 모아 두세요';
+    } else {
+      el.headSub.textContent = '추억 ' + days + '일 · 사진 ' + photos + '장';
+    }
+    el.roomChip.classList.toggle('hidden', !shared.active);
+    if (shared.active) {
+      el.roomChipText.textContent = shared.error ? '함께 쓰는 앨범 · 연결 확인' : '함께 쓰는 앨범';
+      el.roomChip.querySelector('.dot').style.background = shared.error ? '#C25B4E' : '#6E9C74';
+    }
+  }
+
+  /* ---------------------------------------------------------------- 화면: 타임라인 */
+  function monthKeys() {
+    const seen = {};
+    const list = [];
+    state.days.forEach((day) => {
+      const key = day.date.slice(0, 7);
+      if (seen[key]) return;
+      seen[key] = true;
+      list.push(key);
+    });
+    return list;
+  }
+
+  function visibleDays() {
+    const q = oneLine(state.query).toLowerCase();
+    return state.days.filter((day) => {
+      if (state.month !== 'all' && day.date.slice(0, 7) !== state.month) return false;
+      if (!q) return true;
+      const hay = [day.title, day.place, day.memo, displayTitle(day)].join(' ').toLowerCase();
+      return hay.indexOf(q) !== -1;
+    });
+  }
+
+  function renderMonthPills() {
+    const keys = monthKeys();
+    if (state.month !== 'all' && keys.indexOf(state.month) === -1) state.month = 'all';
+    if (!keys.length) { el.monthPills.innerHTML = ''; return; }
+    const total = state.days.length;
+    let html = '<button type="button" class="pill' + (state.month === 'all' ? ' on' : '') +
+      '" data-month="all" aria-pressed="' + (state.month === 'all') + '">전체 <span class="pill-n">' + total + '</span></button>';
+    keys.forEach((key) => {
+      const count = state.days.filter((d) => d.date.slice(0, 7) === key).length;
+      html += '<button type="button" class="pill' + (state.month === key ? ' on' : '') +
+        '" data-month="' + esc(key) + '" aria-pressed="' + (state.month === key) + '">' +
+        esc(formatMonthKey(key)) + ' <span class="pill-n">' + count + '</span></button>';
+    });
+    el.monthPills.innerHTML = html;
+  }
+
+  function dayCardHtml(day) {
+    const p = dateParts(day.date) || { d: 0, m: 0, week: '' };
+    const photos = day.photos || [];
+    let thumbs = '';
+    if (photos.length) {
+      const shown = photos.slice(0, 4);
+      thumbs = '<div class="day-thumbs">' + shown.map((photo, index) => {
+        const more = (index === 3 && photos.length > 4) ? '<span class="thumb-more">+' + (photos.length - 4) + '</span>' : '';
+        return '<button type="button" class="day-thumb" data-photo-id="' + esc(photo.id) + '" data-day-id="' + esc(day.id) +
+          '" aria-label="' + esc(displayTitle(day)) + ' 사진 ' + (index + 1) + ' 크게 보기">' +
+          '<img src="' + esc(thumbUrlFor(photo)) + '" alt="" loading="lazy" decoding="async">' + more + '</button>';
+      }).join('') + '</div>';
+    } else {
+      thumbs = '<p class="day-nophoto">아직 사진이 없어요 · 카드를 눌러 담을 수 있어요</p>';
+    }
+
+    const metaBits = [];
+    if (day.place) metaBits.push('<span class="ico">📍</span><span>' + esc(day.place) + '</span>');
+    if (photos.length) {
+      if (metaBits.length) metaBits.push('<span class="dot">·</span>');
+      metaBits.push('<span>사진 ' + photos.length + '장</span>');
+    }
+
+    const author = day.author || '';
+    const foot = '<div class="day-foot">' +
+      '<span class="day-author">' + (author ? '<span class="avatar">' + esc(authorInitial(author)) + '</span>' + esc(author) : '') + '</span>' +
+      '<button type="button" class="day-open" data-open-day="' + esc(day.id) + '">열어 보기 ›</button>' +
+      '</div>';
+
+    return '<article class="card" data-day-card="' + esc(day.id) + '">' +
+      '<div class="day-top">' +
+        '<div class="date-chip"><span class="d">' + p.d + '</span><span class="m">' + p.m + '월</span><span class="w">' + p.week + '</span></div>' +
+        '<div class="day-body">' +
+          '<h3 class="day-title">' + esc(displayTitle(day)) + '</h3>' +
+          (metaBits.length ? '<p class="day-meta">' + metaBits.join('') + '</p>' : '') +
+          (day.memo ? '<p class="day-memo">' + esc(day.memo) + '</p>' : '') +
+        '</div>' +
+      '</div>' + thumbs + foot + '</article>';
+  }
+
+  function emptyStateHtml() {
+    const join = shared.active ? '' :
+      '<button type="button" class="btn sm" data-act="join-shared" style="margin-top:10px">받은 공유 링크로 들어가기</button>' +
+      '<p class="empty-hint">이미 함께 쓰는 앨범이 있다면, 받은 링크를 붙여 넣으면 돼요.</p>';
+    return '<div class="empty">' +
+      '<div class="emo">🌷</div>' +
+      '<h3>아직 담긴 추억이 없어요</h3>' +
+      '<p>사진을 고르면 찍은 날짜를 읽어<br>그날의 추억으로 모아 드려요.</p>' +
+      '<button type="button" class="btn primary" data-act="new-day">첫 추억 담기</button>' +
+      join +
+      '</div>';
+  }
+
+  function renderTimeline() {
+    renderMonthPills();
+    const days = visibleDays();
+    el.searchClear.classList.toggle('on', !!state.query);
+    if (!state.days.length) {
+      el.resultCount.textContent = '';
+      if (shared.active && shared.error) {
+        el.timeline.innerHTML = '<div class="empty"><div class="emo">📡</div><h3>함께 쓰는 앨범을 불러오지 못했어요</h3>' +
+          '<p>' + esc(shared.error) + '</p>' +
+          '<button type="button" class="btn" data-act="open-settings">설정에서 확인하기</button></div>';
+        return;
+      }
+      el.timeline.innerHTML = emptyStateHtml();
+      return;
+    }
+    if (!days.length) {
+      el.resultCount.textContent = '찾은 추억 0일';
+      el.timeline.innerHTML = '<div class="empty"><div class="emo">🔎</div><h3>찾는 추억이 없어요</h3>' +
+        '<p>다른 말로 찾아보거나 달 필터를 풀어 보세요.</p>' +
+        '<button type="button" class="btn" data-act="clear-filter">검색 지우기</button></div>';
+      return;
+    }
+    const q = oneLine(state.query);
+    el.resultCount.textContent = (q ? '찾은 추억 ' + days.length + '일' :
+      (state.month === 'all' ? '모두 ' + days.length + '일' : formatMonthKey(state.month) + ' ' + days.length + '일'));
+    el.timeline.innerHTML = '<div class="day-list">' + days.map(dayCardHtml).join('') + '</div>';
+  }
+
+  /* ---------------------------------------------------------------- 화면: 사진 모아보기 */
+  function renderPhotos() {
+    const days = state.days.filter((d) => (d.photos || []).length);
+    if (!days.length) {
+      el.photoGroups.innerHTML = '<div class="empty"><div class="emo">📷</div><h3>사진을 모아 보여 드릴게요</h3>' +
+        '<p>타임라인에서 추억을 열어<br>사진을 담아 보세요.</p>' +
+        '<button type="button" class="btn primary" data-act="new-day">첫 추억 담기</button></div>';
+      return;
+    }
+    el.photoGroups.innerHTML = days.map((day) => {
+      const cells = day.photos.map((photo, index) =>
+        '<button type="button" class="photo-cell" data-photo-id="' + esc(photo.id) + '" data-day-id="' + esc(day.id) +
+        '" aria-label="' + esc(displayTitle(day)) + ' 사진 ' + (index + 1) + ' 크게 보기">' +
+        '<img src="' + esc(thumbUrlFor(photo)) + '" alt="" loading="lazy" decoding="async"></button>').join('');
+      return '<section class="photo-group" data-group-day="' + esc(day.id) + '">' +
+        '<div class="photo-group-head"><h3>' + esc(formatDayLabel(day.date)) + ' · ' + esc(displayTitle(day)) + '</h3>' +
+        '<span>' + day.photos.length + '장</span></div>' +
+        '<div class="photo-grid">' + cells + '</div></section>';
+    }).join('');
+  }
+
+  /* ---------------------------------------------------------------- 화면: 설정 */
+  function syncInput(input, value) {
+    if (!input) return;
+    if (document.activeElement === input) return;
+    input.value = value;
+  }
+
+  function renderSettings(only) {
+    const cfg = cloudinaryConfig();
+    const ready = !!(cfg.cloudName && cfg.uploadPreset);
+
+    if (only !== 'share') {
+      syncInput(el.setCloudName, cfg.cloudName);
+      syncInput(el.setPreset, cfg.uploadPreset);
+    }
+    el.cloudStatus.textContent = ready
+      ? (storedCloudinary() ? '연결됨 · ' : '기본 설정으로 연결됨 · ') + cfg.cloudName + ' 로 사진을 올려요.'
+      : '아직 연결 전 — 사진을 이 기기에만 담아요.';
+    el.cloudStatus.className = 'key-state' + (ready ? ' on' : '');
+
+    const quality = uploadQuality();
+    el.qualityOptions.forEach((btn) => {
+      const on = btn.getAttribute('data-quality') === quality;
+      btn.classList.toggle('on', on);
+      btn.setAttribute('aria-checked', on ? 'true' : 'false');
+    });
+    el.qualityStatus.textContent = quality === UPLOAD_MODE_ECO
+      ? '지금은 긴 변 1600px로 줄여 올려요 · 저장 공간을 아껴요'
+      : '지금은 원본 화질로 올려요 · 10MB가 넘는 사진만 줄여요';
+    el.qualityStatus.className = 'key-state on';
+
+    syncInput(el.setNickname, profile.nickname);
+    el.nickStatus.textContent = profile.nickname
+      ? profile.nickname + '(으)로 남겨요.'
+      : '닉네임을 정하면 추억마다 누가 남겼는지 보여요.';
+
+    el.shareLocal.classList.toggle('hidden', shared.active);
+    el.shareRoom.classList.toggle('hidden', !shared.active);
+    if (shared.active) {
+      syncInput(el.shareLink, shareUrlFor(shared.roomId));
+      el.shareStatus.textContent = shared.error
+        ? '연결 문제: ' + shared.error
+        : '실시간으로 함께 보고 있어요. 방 ' + shared.roomId;
+      el.shareStatus.className = 'key-state' + (shared.error ? ' warn' : ' on');
+    } else {
+      el.shareLocalNote.textContent = '지금은 이 기기에만 저장하고 있어요.';
+      el.shareLocalNote.className = 'key-state';
+      if (el.joinNote && !String(el.joinNote.textContent || '').trim()) setJoinNote('', '');
+    }
+
+    renderAnniversary();
+    renderPushSettings();
+
+    el.storeMode.textContent = store.mode === 'idb' ? 'IndexedDB (넉넉함)' : (store.mode === 'ls' ? 'localStorage (약 5MB)' : '확인 중');
+    el.storeMode.className = 'v' + (store.mode ? ' ok' : '');
+    el.storeDays.textContent = state.days.length + '일';
+    el.storePhotos.textContent = photoCountOf(state.days) + '장';
+    el.storeNote.textContent = shared.active
+      ? '함께 쓰는 앨범이라 기록은 방(Firestore)에 있고, 이 기기 저장소는 혼자 쓸 때만 씁니다.'
+      : (store.mode === 'idb' ? '사진을 많이 담아도 괜찮아요.' : '저장 공간이 5MB 로 작아 사진을 줄여 담아요.');
+  }
+
+  /* ---------------------------------------------------------------- 화면 전환 */
+  function setView(view) {
+    state.view = view;
+    el.viewTimeline.classList.toggle('hidden', view !== 'timeline');
+    el.viewPhotos.classList.toggle('hidden', view !== 'photos');
+    el.viewSettings.classList.toggle('hidden', view !== 'settings');
+    el.tabs.forEach((tab) => {
+      const on = tab.getAttribute('data-view') === view;
+      tab.classList.toggle('on', on);
+      tab.setAttribute('aria-selected', on ? 'true' : 'false');
+    });
+    el.fab.classList.toggle('hidden', view === 'settings');
+    if (view === 'settings') {
+      renderSettings();
+      if (readPushSettings().enabled) syncPush(false);
+    }
+    if (view === 'photos') renderPhotos();
+    if (view === 'timeline') renderTimeline();
+    try { window.scrollTo({ top: 0, behavior: 'auto' }); } catch (e) { window.scrollTo(0, 0); }
+  }
+
+  function renderAll() {
+    renderHeader();
+    renderAnnivCard();
+    renderTimeline();
+    renderPhotos();
+    if (state.view === 'settings') renderSettings();
+    else renderSettings('share');
+  }
+
+  /* ---------------------------------------------------------------- 날짜 시트 */
+  function draftPreview(item) {
+    if (item.photo) return thumbUrlFor(item.photo);
+    return item.preview || '';
+  }
+
+  function draftTileHtml(item) {
+    const src = draftPreview(item);
+    let badge = '';
+    if (item.status === 'reading') badge = '<span class="draft-spin">읽는 중…</span>';
+    else if (item.status === 'uploading') badge = '<span class="draft-spin">' + (item.progress || 0) + '%</span>';
+    else if (item.status === 'failed') badge = '<span class="draft-badge failed">열 수 없어요</span>';
+    else if (!item.photo && item.takenAt) badge = '<span class="draft-badge ready">' + esc(formatDayLabel(item.takenAt.slice(0, 10))) + '</span>';
+    const prog = item.status === 'uploading'
+      ? '<span class="draft-prog"><span class="draft-prog-fill" style="width:' + (item.progress || 0) + '%"></span></span>'
+      : '';
+    return '<div class="draft-tile ' + (item.status === 'failed' ? 'failed' : '') + '" data-key="' + esc(item.key) + '">' +
+      (src ? '<img src="' + esc(src) + '" alt="">' : '') +
+      '<button type="button" class="draft-del" data-act="remove-draft" aria-label="이 사진 빼기">✕</button>' +
+      badge + prog + '</div>';
+  }
+
+  function renderDraft() {
+    const draft = state.draft;
+    if (!draft) return;
+    const photos = draft.photos || [];
+    el.draftCount.textContent = photos.length + '장';
+    el.draftEmpty.classList.toggle('hidden', photos.length > 0);
+    el.draftGrid.innerHTML = photos.map(draftTileHtml).join('');
+    el.btnSave.textContent = state.saving
+      ? (state.savingLabel || '올리는 중…')
+      : (state.draftEditing ? '고치기' : '저장');
+    el.btnSave.disabled = !!state.saving;
+    el.fPhotos.disabled = !!state.saving;
+  }
+
+  function updateDraftProgress(item) {
+    const tile = el.draftGrid.querySelector('[data-key="' + item.key + '"]');
+    if (!tile) return;
+    const fill = tile.querySelector('.draft-prog-fill');
+    if (fill) fill.style.width = (item.progress || 0) + '%';
+    const spin = tile.querySelector('.draft-spin');
+    if (spin && item.status === 'uploading') spin.textContent = (item.progress || 0) + '%';
+  }
+
+  function openDaySheet(day) {
+    if (state.saving) return;
+    state.draft = {
+      id: day ? day.id : '',
+      date: day ? day.date : todayISO(),
+      title: day ? day.title : '',
+      place: day ? day.place : '',
+      memo: day ? day.memo : '',
+      photos: day ? day.photos.map((photo) => ({
+        key: 'e' + photo.id,
+        photo: photo,
+        caption: photo.caption,
+        takenAt: photo.takenAt,
+        status: 'done',
+        progress: 100
+      })) : []
+    };
+    state.draftEditing = !!day;
+    state.draftCreatedAt = day ? day.createdAt : '';
+    state.draftExifDate = '';
+    state.draft.dateTouched = false;
+    el.sheetTitle.textContent = day ? '추억 고치기' : '추억 담기';
+    el.fDate.value = state.draft.date;
+    el.fTitle.value = state.draft.title;
+    el.fPlace.value = state.draft.place;
+    el.fMemo.value = state.draft.memo;
+    el.exifHint.hidden = true;
+    el.exifHint.textContent = '';
+    el.exifHint.className = 'hint';
+    el.btnDeleteDay.classList.toggle('hidden', !day);
+    const qualityNote = uploadQuality() === UPLOAD_MODE_ECO
+      ? '긴 변 1600px로 줄여'
+      : '원본 화질로';
+    el.draftHint.textContent = hasCloudinary()
+      ? '사진은 Cloudinary에 ' + qualityNote + ' 올라가요.'
+      : 'Cloudinary를 연결하기 전이라 사진을 이 기기에만 담아요. (설정에서 연결할 수 있어요)';
+    renderDraft();
+    el.sheet.classList.remove('hidden');
+    el.sheetBackdrop.classList.remove('hidden');
+    lockBody();
+    setTimeout(() => { try { el.fTitle.focus(); } catch (e) {} }, 120);
+  }
+
+  function closeSheet(force) {
+    if (state.saving && !force) return;
+    state.draft = null;
+    state.draftEditing = false;
+    state.draftBusy = false;
+    el.sheet.classList.add('hidden');
+    el.sheetBackdrop.classList.add('hidden');
+    el.fPhotos.value = '';
+    lockBody();
+  }
+
+  function applyExifDate(date) {
+    state.draft.date = date;
+    el.fDate.value = date;
+    el.exifHint.hidden = false;
+    el.exifHint.className = 'hint';
+    el.exifHint.textContent = '사진을 찍은 날(' + formatDayFull(date) + ')로 날짜를 맞췄어요.';
+  }
+
+  async function addPickedFiles(fileList) {
+    const files = Array.prototype.slice.call(fileList || []);
+    if (!files.length || !state.draft) return;
+    if (state.saving) { toast('올리는 중이에요. 조금만 기다려 주세요.'); return; }
+    const accepted = [];
+    let skipped = 0;
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      const isImage = /^image\//.test(file.type || '') ||
+        /\.(jpe?g|png|webp|gif|bmp|heic|heif)$/i.test(file.name || '');
+      if (!isImage) { skipped += 1; continue; }
+      accepted.push(file);
+    }
+    if (!accepted.length) { toast('사진 파일이 아니에요.'); return; }
+
+    state.draftBusy = true;
+    renderDraft();
+    let failed = 0;
+
+    for (let i = 0; i < accepted.length; i++) {
+      const file = accepted[i];
+      const item = {
+        key: 'n' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
+        file: file, photo: null, caption: '', preview: '', takenAt: '',
+        width: 0, height: 0, status: 'reading', progress: 0, error: ''
+      };
+      state.draft.photos.push(item);
+      renderDraft();
+      try {
+        const bytes = await readPhotoBytes(file);
+        const exif = extractExifTaken(bytes);
+        if (exif.date) item.takenAt = exif.date + (exif.time ? 'T' + exif.time : '');
+        const source = await decodeImage(file, 1600);
+        const width = source.width || source.naturalWidth || 0;
+        const height = source.height || source.naturalHeight || 0;
+        if (!width || !height) throw new Error('empty-image');
+        item.width = width;
+        item.height = height;
+        item.preview = drawScaled(source, width, height, 480, 0.72).url;
+        closeSource(source);
+        item.status = 'ready';
+        /* 첫 사진에 찍은 날짜가 있으면 날짜 칸을 그날로 맞춰 줍니다.
+           사용자가 날짜를 직접 고른 뒤에는 건드리지 않아요. */
+        if (exif.date && !state.draftExifDate) {
+          state.draftExifDate = exif.date;
+          if (!state.draft.dateTouched && !state.draftEditing) applyExifDate(exif.date);
+        }
+      } catch (err) {
+        item.status = 'failed';
+        item.error = imageErrorText(err, file);
+        failed += 1;
+      }
+      renderDraft();
+    }
+
+    state.draftBusy = false;
+    renderDraft();
+    if (skipped) toast('사진이 아닌 파일 ' + skipped + '개는 건너뛰었어요.');
+    if (failed) toast('사진 ' + failed + '장을 열지 못했어요.\n' + (state.draft.photos.find((p) => p.error) || {}).error);
+  }
+
+  function removeDraftItem(key) {
+    if (!state.draft) return;
+    const idx = state.draft.photos.findIndex((p) => p.key === key);
+    if (idx >= 0) state.draft.photos.splice(idx, 1);
+    renderDraft();
+  }
+
+  async function buildPhoto(item) {
+    const cfg = cloudinaryConfig();
+    /* 촬영일은 줄이기 전 원본 파일 바이트에서 읽습니다.
+       (Canvas 로 다시 인코딩하면 EXIF 가 사라지므로 여기서 한 번 더 확인해요.) */
+    if (item && item.file && !item.takenAt) {
+      try {
+        const bytes = await readPhotoBytes(item.file);
+        const exif = extractExifTaken(bytes);
+        if (exif.date) item.takenAt = exif.date + (exif.time ? 'T' + exif.time : '');
+      } catch (e) { /* 촬영일 없이 올립니다 */ }
+    }
+    if (cfg.cloudName && cfg.uploadPreset) {
+      const prepared = await prepareUploadBlob(item.file, uploadQuality());
+      item.status = 'uploading';
+      item.progress = 1;
+      updateDraftProgress(item);
+      const folder = 'jaeyeon-album/' + (shared.active && shared.roomId ? shared.roomId : 'local');
+      const json = await uploadPhoto(prepared.blob, folder, (pct) => {
+        item.progress = pct;
+        updateDraftProgress(item);
+      });
+      const url = String(json.secure_url || json.url || '');
+      if (!isPhotoUrl(url)) throw new Error('업로드 주소를 받지 못했어요');
+      return {
+        id: makePhotoId(),
+        url: url,
+        thumbUrl: cloudinaryTransform(url, 'w_600,q_auto,f_auto'),
+        publicId: String(json.public_id || ''),
+        caption: clampText(item.caption, MAX_CAPTION),
+        takenAt: item.takenAt || '',
+        width: toInt(json.width) || prepared.width || item.width || 0,
+        height: toInt(json.height) || prepared.height || item.height || 0,
+        author: nickname(),
+        addedAt: nowISO()
+      };
+    }
+    const saved = await localPhotoFromFile(item.file);
+    return {
+      id: makePhotoId(),
+      url: saved.url,
+      thumbUrl: saved.thumbUrl,
+      publicId: '',
+      caption: clampText(item.caption, MAX_CAPTION),
+      takenAt: item.takenAt || '',
+      width: saved.width,
+      height: saved.height,
+      author: nickname(),
+      addedAt: nowISO()
+    };
+  }
+
+  async function submitDay() {
+    if (!state.draft || state.saving) return;
+    if (state.draftBusy) { toast('사진을 읽는 중이에요. 잠깐만요.'); return; }
+    const date = String(el.fDate.value || state.draft.date || '');
+    if (!parseISODate(date)) { toast('날짜를 골라 주세요.'); el.fDate.focus(); return; }
+
+    const day = {
+      id: state.draft.id || makeDayId(),
+      date: date,
+      title: clampText(el.fTitle.value, MAX_TITLE),
+      place: clampText(el.fPlace.value, MAX_PLACE),
+      memo: clampMemo(el.fMemo.value),
+      author: nickname(),
+      createdAt: state.draftCreatedAt || nowISO(),
+      updatedAt: nowISO(),
+      photos: []
+    };
+
+    state.saving = true;
+    state.savingLabel = '올리는 중…';
+    renderDraft();
+
+    const pending = state.draft.photos.filter((item) => !item.photo && item.file && item.status !== 'failed');
+    let doneCount = 0;
+    let failed = 0;
+    state.savingLabel = pending.length ? ('올리는 중… 0/' + pending.length) : '저장 중…';
+    renderDraft();
+
+    for (let i = 0; i < state.draft.photos.length; i++) {
+      const item = state.draft.photos[i];
+      if (item.photo) {
+        item.photo.caption = clampText(item.caption, MAX_CAPTION);
+        day.photos.push(item.photo);
+        continue;
+      }
+      if (!item.file || item.status === 'failed') { if (item.status === 'failed') failed += 1; continue; }
+      try {
+        const photo = await buildPhoto(item);
+        item.photo = photo;
+        item.status = 'done';
+        day.photos.push(photo);
+      } catch (err) {
+        item.status = 'failed';
+        item.error = uploadErrorMessage(err);
+        failed += 1;
+      }
+      doneCount += 1;
+      state.savingLabel = '올리는 중… ' + doneCount + '/' + pending.length;
+      renderDraft();
+    }
+
+    sortPhotos(day.photos);
+
+    try {
+      await commitDay(day);
+    } catch (err) {
+      state.saving = false;
+      renderDraft();
+      toast('저장하지 못했어요: ' + shareErrorMessage(err));
+      return;
+    }
+
+    const wasEditing = state.draftEditing;
+    state.saving = false;
+    closeSheet(true);
+    renderAll();
+    if (failed) toast('추억은 담았고, 사진 ' + failed + '장은 올리지 못했어요.');
+    else toast(wasEditing ? '추억을 고쳤어요.' : '추억을 담았어요.');
+  }
+
+  async function deleteCurrentDay() {
+    if (!state.draft || !state.draft.id) return;
+    const day = findDay(state.draft.id);
+    if (!day) return;
+    const ok = await confirmDialog({
+      title: '이 추억을 지울까요?',
+      message: '날짜와 메모, 사진 목록이 앨범에서 사라져요.\nCloudinary에 올린 원본 사진은 지워지지 않아요.',
+      confirm: '지우기',
+      danger: true
+    });
+    if (!ok) return;
+    try {
+      await deleteDay(day);
+      closeSheet(true);
+      toast('추억을 지웠어요.');
+    } catch (err) {
+      toast('지우지 못했어요: ' + shareErrorMessage(err));
+    }
+  }
+
+  /* ---------------------------------------------------------------- 라이트박스 */
+  function lightboxContext() {
+    if (!state.lb) return null;
+    const day = findDay(state.lb.dayId);
+    if (!day || !(day.photos || []).length) return null;
+    const index = Math.min(Math.max(0, state.lb.index), day.photos.length - 1);
+    state.lb.index = index;
+    return { day: day, list: day.photos, photo: day.photos[index], index: index };
+  }
+
+  function renderLightbox() {
+    if (el.lightbox.classList.contains('hidden')) return;
+    const ctx = lightboxContext();
+    if (!ctx) { closeLightbox(); return; }
+    el.lbImg.src = viewUrlFor(ctx.photo);
+    el.lbImg.alt = ctx.photo.caption || displayTitle(ctx.day);
+    el.lbCount.textContent = (ctx.index + 1) + ' / ' + ctx.list.length;
+    el.lbDate.textContent = formatDayFull(ctx.day.date) + (ctx.day.place ? ' · ' + ctx.day.place : '');
+    el.lbTitle.textContent = displayTitle(ctx.day);
+    if (document.activeElement !== el.lbCaption) el.lbCaption.value = ctx.photo.caption || '';
+    const many = ctx.list.length > 1;
+    el.lbPrev.classList.toggle('hidden', !many);
+    el.lbNext.classList.toggle('hidden', !many);
+  }
+
+  function openLightbox(dayId, photoId) {
+    const day = findDay(dayId);
+    if (!day || !day.photos.length) return;
+    let index = day.photos.findIndex((p) => p.id === photoId);
+    if (index < 0) index = 0;
+    state.lb = { dayId: dayId, index: index };
+    el.lightbox.classList.remove('hidden');
+    renderLightbox();
+    lockBody();
+  }
+
+  function closeLightbox() {
+    state.lb = null;
+    el.lightbox.classList.add('hidden');
+    el.lbImg.removeAttribute('src');
+    lockBody();
+  }
+
+  function stepLightbox(delta) {
+    const ctx = lightboxContext();
+    if (!ctx) { closeLightbox(); return; }
+    state.lb.index = (ctx.index + delta + ctx.list.length) % ctx.list.length;
+    renderLightbox();
+  }
+
+  async function saveLightboxCaption() {
+    const ctx = lightboxContext();
+    if (!ctx) return;
+    const next = clampText(el.lbCaption.value, MAX_CAPTION);
+    if (next === (ctx.photo.caption || '')) { toast('설명이 그대로예요.'); return; }
+    ctx.photo.caption = next;
+    try {
+      await commitDay(ctx.day);
+      toast(next ? '설명을 저장했어요.' : '설명을 지웠어요.');
+    } catch (err) {
+      toast('저장하지 못했어요: ' + shareErrorMessage(err));
+    }
+    renderAll();
+    renderLightbox();
+  }
+
+  function downloadCurrentPhoto() {
+    const ctx = lightboxContext();
+    if (!ctx) return;
+    const href = downloadUrlFor(ctx.photo);
+    const link = document.createElement('a');
+    link.href = href;
+    if (!ctx.photo.publicId) link.download = downloadNameOf(ctx.day, ctx.photo);
+    link.rel = 'noopener';
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    toast('원본을 내려받아요.');
+  }
+
+  async function removeCurrentPhoto() {
+    const ctx = lightboxContext();
+    if (!ctx) return;
+    const ok = await confirmDialog({
+      title: '이 사진을 뺄까요?',
+      message: '앨범에서만 사라져요. Cloudinary에 올린 원본은 지워지지 않아요.',
+      confirm: '빼기',
+      danger: true
+    });
+    if (!ok) return;
+    const day = ctx.day;
+    const idx = day.photos.findIndex((p) => p.id === ctx.photo.id);
+    if (idx < 0) return;
+    day.photos.splice(idx, 1);
+    try {
+      await commitDay(day);
+    } catch (err) {
+      day.photos.splice(idx, 0, ctx.photo);
+      toast('빼지 못했어요: ' + shareErrorMessage(err));
+      return;
+    }
+    toast('사진을 뺐어요.');
+    if (!day.photos.length) closeLightbox();
+    else { state.lb.index = Math.min(idx, day.photos.length - 1); renderLightbox(); }
+    renderAll();
+  }
+
+  /* ---------------------------------------------------------------- 기념일
+     since   = 연인이 된 날(이날이 1일째) → 100일 단위·n주년
+     wedding = 결혼기념일 → 결혼식 당일(앞으로라면 D-day)·결혼 n주년
+     함께 쓰는 앨범이면 방 문서(albums/{방})에, 아니면 이 기기에 둡니다. 서버 알림도 같은 규칙. */
+  const ANNIV_FIELDS = { since: SINCE_KEY, wedding: WEDDING_KEY };
+
+  function isSinceDate(v) {
+    return typeof v === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(v) && !!parseISODate(v);
+  }
+
+  function localAnniv(field) {
+    try { const v = localStorage.getItem(ANNIV_FIELDS[field]) || ''; return isSinceDate(v) ? v : ''; } catch (e) { return ''; }
+  }
+
+  function saveLocalAnniv(field, v) {
+    try {
+      if (v) localStorage.setItem(ANNIV_FIELDS[field], v); else localStorage.removeItem(ANNIV_FIELDS[field]);
+    } catch (e) {}
+  }
+
+  function currentAnniv(field) {
+    if (shared.active) return shared.room && isSinceDate(shared.room[field]) ? shared.room[field] : '';
+    return localAnniv(field);
+  }
+
+  function currentSince() { return currentAnniv('since'); }
+  function currentWedding() { return currentAnniv('wedding'); }
+
+  function utcDay(iso) {
+    return Date.UTC(+iso.slice(0, 4), +iso.slice(5, 7) - 1, +iso.slice(8, 10));
+  }
+
+  /* 시작한 날이 1일째 */
+  function daysTogether(since, date) {
+    return Math.round((utcDay(date) - utcDay(since)) / 86400000) + 1;
+  }
+
+  function daysUntil(date, today) {
+    return Math.round((utcDay(date) - utcDay(today)) / 86400000);
+  }
+
+  function addDaysISO(iso, n) {
+    return new Date(utcDay(iso) + n * 86400000).toISOString().slice(0, 10);
+  }
+
+  function shortDateLabel(iso) {
+    const wd = new Date(utcDay(iso)).getUTCDay();
+    return (+iso.slice(5, 7)) + '/' + (+iso.slice(8, 10)) + '(' + WEEK[wd] + ')';
+  }
+
+  /* 그해의 같은 달·일 (윤일에 시작했으면 평년에는 2월 28일) */
+  function sameDayInYear(start, y) {
+    let md = start.slice(5);
+    const leap = (y % 4 === 0 && y % 100 !== 0) || y % 400 === 0;
+    if (md === '02-29' && !leap) md = '02-28';
+    return y + '-' + md;
+  }
+
+  /* 오늘 이후 다가오는 기념일 — [{date, name, kind:'love'|'wedding'}] */
+  function upcomingAnniversaries(since, wedding, today, limit) {
+    const out = [];
+    const ty = +today.slice(0, 4);
+    if (since) {
+      const n = daysTogether(since, today);
+      for (let k = Math.max(1, Math.ceil(n / 100)), c = 0; c < limit && k < 400; k++) {
+        const date = addDaysISO(since, k * 100 - 1);
+        if (date >= today && date > since) { out.push({ date: date, name: (k * 100) + '일', kind: 'love' }); c++; }
+      }
+      const sy = +since.slice(0, 4);
+      for (let y = Math.max(sy + 1, ty); y <= Math.max(sy + 1, ty) + limit; y++) {
+        const date = sameDayInYear(since, y);
+        if (date >= today) out.push({ date: date, name: (y - sy) + '주년', kind: 'love' });
+      }
+    }
+    if (wedding) {
+      if (wedding >= today) out.push({ date: wedding, name: '결혼식', kind: 'wedding' });
+      const wy = +wedding.slice(0, 4);
+      for (let y = Math.max(wy + 1, ty); y <= Math.max(wy + 1, ty) + limit; y++) {
+        const date = sameDayInYear(wedding, y);
+        if (date >= today) out.push({ date: date, name: '결혼 ' + (y - wy) + '주년', kind: 'wedding' });
+      }
+    }
+    out.sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0));
+    /* 같은 날이면 하나로 합칩니다 */
+    const merged = [];
+    out.forEach((m) => {
+      const last = merged[merged.length - 1];
+      if (last && last.date === m.date) { last.name += ' · ' + m.name; if (m.kind === 'wedding') last.kind = 'wedding'; }
+      else merged.push({ date: m.date, name: m.name, kind: m.kind });
+    });
+    return merged.slice(0, limit);
+  }
+
+  function ddayText(left) {
+    return left === 0 ? '오늘!' : 'D-' + left;
+  }
+
+  /* 「함께한 지 775일째」, 「결혼한 지 n일째」 / 「결혼식 D-30」 */
+  function annivSummary(since, wedding, today) {
+    const out = [];
+    if (since) {
+      const n = daysTogether(since, today);
+      out.push(n >= 1
+        ? { icon: '💕', label: '함께한 지', value: n.toLocaleString('ko-KR') + '일째' }
+        : { icon: '💕', label: '연인이 되는 날까지', value: 'D-' + (1 - n) });
+    }
+    if (wedding) {
+      const w = daysTogether(wedding, today);
+      out.push(w >= 1
+        ? { icon: '💍', label: '결혼한 지', value: w.toLocaleString('ko-KR') + '일째' }
+        : { icon: '💍', label: '결혼식까지', value: 'D-' + (1 - w) });
+    }
+    return out;
+  }
+
+  function annivListItems(list, today) {
+    return list.map((m) => {
+      const li = document.createElement('li');
+      li.className = m.kind === 'wedding' ? 'wedding' : '';
+      const what = document.createElement('span');
+      what.textContent = (m.kind === 'wedding' ? '💍 ' : '💕 ') + m.name + ' · ' + shortDateLabel(m.date);
+      const dd = document.createElement('span');
+      dd.className = 'dd';
+      dd.textContent = ddayText(daysUntil(m.date, today));
+      li.appendChild(what);
+      li.appendChild(dd);
+      return li;
+    });
+  }
+
+  function renderAnniversary() {
+    const since = currentSince();
+    const wedding = currentWedding();
+    syncInput(el.setSince, since);
+    syncInput(el.setWedding, wedding);
+    el.annivList.innerHTML = '';
+    if (!since && !wedding) {
+      el.sinceStatus.textContent = '아직 정하지 않았어요.';
+      el.sinceStatus.className = 'key-state';
+      return;
+    }
+    const today = todayISO();
+    el.sinceStatus.textContent = annivSummary(since, wedding, today)
+      .map((x) => x.label + ' ' + x.value).join(' · ');
+    el.sinceStatus.className = 'key-state on';
+    annivListItems(upcomingAnniversaries(since, wedding, today, 5), today)
+      .forEach((li) => el.annivList.appendChild(li));
+  }
+
+  /* 타임라인 맨 위 카드 */
+  function renderAnnivCard() {
+    const since = currentSince();
+    const wedding = currentWedding();
+    const card = el.annivCard;
+    card.innerHTML = '';
+    if (!since && !wedding) {
+      card.className = 'anniv-card empty';
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'anniv-empty';
+      b.textContent = '💝 연인이 된 날·결혼기념일을 넣으면 여기에 D-day가 보여요';
+      b.addEventListener('click', () => { setView('settings'); try { el.setSince.focus(); } catch (e) {} });
+      card.appendChild(b);
+      return;
+    }
+    card.className = 'anniv-card';
+    const today = todayISO();
+    const top = document.createElement('div');
+    top.className = 'anniv-top';
+    annivSummary(since, wedding, today).forEach((x) => {
+      const box = document.createElement('div');
+      box.className = 'anniv-stat';
+      const l = document.createElement('span');
+      l.className = 'l';
+      l.textContent = x.icon + ' ' + x.label;
+      const v = document.createElement('span');
+      v.className = 'v';
+      v.textContent = x.value;
+      box.appendChild(l);
+      box.appendChild(v);
+      top.appendChild(box);
+    });
+    card.appendChild(top);
+    const next = upcomingAnniversaries(since, wedding, today, 1); /* 가장 가까운 하나만 */
+    if (next.length) {
+      const ul = document.createElement('ul');
+      ul.className = 'anniv-list';
+      annivListItems(next, today).forEach((li) => ul.appendChild(li));
+      card.appendChild(ul);
+    }
+  }
+
+  async function saveSinceFromForm() {
+    const values = { since: String(el.setSince.value || ''), wedding: String(el.setWedding.value || '') };
+    if ((values.since && !isSinceDate(values.since)) || (values.wedding && !isSinceDate(values.wedding))) {
+      toast('날짜를 확인해 주세요.');
+      return;
+    }
+    if (shared.active && shared.fs) {
+      const mod = shared.fs.mod;
+      const ref = mod.doc(shared.fs.db, ALBUM_COLLECTION, shared.roomId);
+      const patch = { updatedAt: mod.serverTimestamp() };
+      Object.keys(values).forEach((k) => { patch[k] = values[k] || mod.deleteField(); });
+      try {
+        await mod.updateDoc(ref, patch);
+      } catch (err) {
+        toast('함께 쓰는 앨범에 저장하지 못했어요: ' + shareErrorMessage(err));
+        return;
+      }
+      shared.room = Object.assign({}, shared.room || {});
+      Object.keys(values).forEach((k) => { if (values[k]) shared.room[k] = values[k]; else delete shared.room[k]; });
+    }
+    Object.keys(values).forEach((k) => saveLocalAnniv(k, values[k]));
+    renderAll();
+    toast(values.since || values.wedding ? '우리 기념일을 저장했어요.' : '기념일을 지웠어요.');
+  }
+
+  /* ---------------------------------------------------------------- 알림 */
+  function getDeviceId() {
+    let id = '';
+    try { id = localStorage.getItem(DEVICE_KEY) || ''; } catch (e) { id = ''; }
+    if (/^[A-Za-z0-9_-]{8,64}$/.test(id)) return id;
+    const bytes = new Uint8Array(15);
+    window.crypto.getRandomValues(bytes);
+    id = 'd' + Array.prototype.map.call(bytes, (b) => ('0' + b.toString(16)).slice(-2)).join('');
+    try { localStorage.setItem(DEVICE_KEY, id); } catch (e) {}
+    return id;
+  }
+
+  function readPushSettings() {
+    const out = { enabled: false, remindTime: '09:00', changeAlerts: true, annivAlerts: true };
+    try {
+      const raw = JSON.parse(localStorage.getItem(PUSH_KEY) || '{}');
+      if (typeof raw.enabled === 'boolean') out.enabled = raw.enabled;
+      if (/^([01]\d|2[0-3]):[0-5]\d$/.test(raw.remindTime || '')) out.remindTime = raw.remindTime;
+      if (typeof raw.changeAlerts === 'boolean') out.changeAlerts = raw.changeAlerts;
+      if (typeof raw.annivAlerts === 'boolean') out.annivAlerts = raw.annivAlerts;
+    } catch (e) {}
+    return out;
+  }
+
+  function savePushSettings(next) {
+    try { localStorage.setItem(PUSH_KEY, JSON.stringify(next)); } catch (e) {}
+  }
+
+  function isAndroidApp() {
+    return !!(window.AndroidApp && typeof window.AndroidApp.getPushToken === 'function');
+  }
+
+  function isIOS() {
+    const ua = navigator.userAgent || '';
+    return /iPhone|iPad|iPod/.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1);
+  }
+
+  function isStandalone() {
+    return navigator.standalone === true ||
+      !!(window.matchMedia && window.matchMedia('(display-mode: standalone)').matches);
+  }
+
+  /* 이 기기에서 쓸 수 있는 푸시 방식 */
+  function pushSupport() {
+    if (isAndroidApp()) {
+      let perm = '';
+      try { perm = String(window.AndroidApp.pushPermission()); } catch (e) { perm = ''; }
+      return perm === 'unavailable' ? 'app-no-fcm' : 'android';
+    }
+    if (window.AndroidApp) return 'app-old'; /* 알림 기능이 없던 예전 안드로이드 앱 */
+    if (isIOS() && !isStandalone()) return 'ios-browser';
+    if (!('serviceWorker' in navigator) || !('PushManager' in window) || !('Notification' in window)) return 'unsupported';
+    return 'web';
+  }
+
+  function setPushStatus(text, tone) {
+    el.pushStatus.hidden = !text;
+    el.pushStatus.textContent = text || '';
+    el.pushStatus.className = 'key-state push-status' + (tone ? ' ' + tone : '');
+  }
+
+  /* 안드로이드 앱(네이티브)이 토큰·권한 결과를 알려 줄 때 부르는 함수 */
+  let androidWaiters = [];
+  window.__onPushToken = function (token) {
+    push.token = String(token || '');
+    const waiting = androidWaiters;
+    androidWaiters = [];
+    waiting.forEach((fn) => fn(push.token));
+    if (push.token && push.platform === 'android' && push.registeredRoom) registerDevice().catch(() => {});
+  };
+  window.__onPushPermission = function (result) {
+    if (result !== 'granted') {
+      const waiting = androidWaiters;
+      androidWaiters = [];
+      waiting.forEach((fn) => fn(''));
+    }
+  };
+
+  function androidToken(interactive) {
+    return new Promise((resolve) => {
+      let now = '';
+      try { now = String(window.AndroidApp.getPushToken() || ''); } catch (e) { now = ''; }
+      let perm = 'granted';
+      try { perm = String(window.AndroidApp.pushPermission()); } catch (e) { perm = 'granted'; }
+      if (now && perm === 'granted') { resolve(now); return; }
+      if (perm !== 'granted' && !interactive) { resolve(''); return; }
+      androidWaiters.push(resolve);
+      if (perm !== 'granted') {
+        try { window.AndroidApp.requestPushPermission(); } catch (e) {}
+      }
+      setTimeout(() => {
+        const i = androidWaiters.indexOf(resolve);
+        if (i !== -1) { androidWaiters.splice(i, 1); resolve(''); }
+      }, 20000);
+    });
+  }
+
+  async function webMessaging() {
+    if (push.messaging) return push.messaging;
+    const fs = await loadFirestore();
+    const base = 'https://www.gstatic.com/firebasejs/' + FIREBASE_VERSION + '/';
+    const mod = await import(base + 'firebase-messaging.js');
+    if (typeof mod.isSupported === 'function' && !(await mod.isSupported())) throw new Error('unsupported');
+    const messaging = mod.getMessaging(fs.app);
+    mod.onMessage(messaging, (payload) => {
+      const n = (payload && payload.notification) || {};
+      toast((n.title ? n.title + ' — ' : '') + (n.body || '새 알림'));
+    });
+    push.messaging = { mod: mod, messaging: messaging };
+    return push.messaging;
+  }
+
+  async function webToken(interactive) {
+    if (Notification.permission === 'denied') return '';
+    if (Notification.permission !== 'granted') {
+      if (!interactive) return '';
+      const res = await Notification.requestPermission();
+      if (res !== 'granted') return '';
+    }
+    const m = await webMessaging();
+    const reg = await navigator.serviceWorker.register('firebase-messaging-sw.js', { scope: './' });
+    return await m.mod.getToken(m.messaging, { vapidKey: VAPID_KEY, serviceWorkerRegistration: reg });
+  }
+
+  async function obtainToken(interactive) {
+    const kind = pushSupport();
+    if (kind === 'android') { push.platform = 'android'; return androidToken(interactive); }
+    if (kind === 'web') { push.platform = 'web'; return webToken(interactive); }
+    return '';
+  }
+
+  function deviceRef(roomId) {
+    const fs = shared.fs;
+    return fs.mod.doc(fs.db, ALBUM_COLLECTION, roomId, 'devices', getDeviceId());
+  }
+
+  async function registerDevice() {
+    if (!shared.active || !shared.fs || !push.token) return;
+    const set = readPushSettings();
+    if (!set.enabled) return;
+    let tz = 'Asia/Seoul';
+    try { tz = Intl.DateTimeFormat().resolvedOptions().timeZone || tz; } catch (e) {}
+    const mod = shared.fs.mod;
+    await mod.setDoc(deviceRef(shared.roomId), {
+      token: push.token,
+      platform: push.platform === 'android' ? 'android' : 'web',
+      enabled: true,
+      changeAlerts: set.changeAlerts,
+      annivAlerts: set.annivAlerts,
+      remindTime: set.remindTime,
+      tz: String(tz).slice(0, 64),
+      name: oneLine(profile.nickname).slice(0, MAX_AUTHOR),
+      updatedAt: mod.serverTimestamp()
+    }, { merge: true });
+    push.registeredRoom = shared.roomId;
+  }
+
+  function unregisterDevice(roomId) {
+    if (!shared.fs || !roomId) return Promise.resolve();
+    return shared.fs.mod.deleteDoc(deviceRef(roomId)).catch(() => {});
+  }
+
+  /* 설정에 맞춰 이 앨범에 기기를 등록하거나 지웁니다. interactive=true 이면 권한을 물어봅니다. */
+  async function syncPush(interactive) {
+    const set = readPushSettings();
+    if (!set.enabled) {
+      if (push.registeredRoom) await unregisterDevice(push.registeredRoom);
+      push.registeredRoom = '';
+      setPushStatus('', '');
+      return;
+    }
+    const kind = pushSupport();
+    if (kind === 'ios-browser') { setPushStatus('아이폰은 Safari 아래 공유(□↑) → 「홈 화면에 추가」로 연 앱에서 알림을 켤 수 있어요 (iOS 16.4 이상).', 'warn'); return; }
+    if (kind === 'app-old') { setPushStatus('이 앱 버전은 알림을 지원하지 않아요. 최신 사진첩 APK 로 업데이트해 주세요.', 'warn'); return; }
+    if (kind === 'app-no-fcm') { setPushStatus('이 앱은 아직 알림 설정(google-services.json) 없이 만들어졌어요. 알림이 들어간 새 APK 가 나오면 업데이트해 주세요.', 'warn'); return; }
+    if (kind === 'unsupported') { setPushStatus('이 브라우저는 푸시 알림을 지원하지 않아요.', 'warn'); return; }
+    if (!shared.active) { setPushStatus('알림은 함께 쓰는 앨범에서 받을 수 있어요. 위에서 공유 링크를 만들거나 받은 링크로 들어가 주세요.', ''); return; }
+    try {
+      if (!shared.fs) await loadFirestore();
+      const token = await obtainToken(interactive);
+      if (!token) {
+        setPushStatus('알림 권한이 꺼져 있어요. 휴대폰 설정에서 이 앱의 알림을 허용해 주세요.', 'warn');
+        return;
+      }
+      push.token = token;
+      await registerDevice();
+      setPushStatus('이 기기에서 이 앨범 알림을 받고 있어요.', 'on');
+    } catch (err) {
+      console.warn('[push]', err);
+      setPushStatus(String((err && (err.code || err.message)) || '').indexOf('permission-denied') !== -1
+        ? '알림을 등록하지 못했어요. Firestore 규칙을 먼저 게시해야 해요.'
+        : '알림을 켜지 못했어요: ' + shareErrorMessage(err), 'warn');
+    }
+  }
+
+  function renderPushSettings() {
+    const set = readPushSettings();
+    el.pushToggle.checked = set.enabled;
+    el.pushChange.checked = set.changeAlerts;
+    el.pushAnniv.checked = set.annivAlerts;
+    syncInput(el.pushTime, set.remindTime);
+    el.pushChange.disabled = !set.enabled;
+    el.pushAnniv.disabled = !set.enabled;
+    el.pushTime.disabled = !set.enabled || !set.annivAlerts;
+    el.rowPushChange.classList.toggle('off', !set.enabled);
+    el.rowPushAnniv.classList.toggle('off', !set.enabled);
+    el.rowPushTime.classList.toggle('off', !set.enabled || !set.annivAlerts);
+    if (!set.enabled) setPushStatus('', '');
+  }
+
+  function updatePushSetting(patch, interactive) {
+    const next = Object.assign(readPushSettings(), patch);
+    savePushSettings(next);
+    renderPushSettings();
+    return syncPush(interactive);
+  }
+
+  /* ---------------------------------------------------------------- 이벤트 */
+  function bindEvents() {
+    el.tabs.forEach((tab) => tab.addEventListener('click', () => setView(tab.getAttribute('data-view'))));
+    el.fab.addEventListener('click', () => openDaySheet(null));
+    el.headShare.addEventListener('click', () => setView('settings'));
+    el.roomChip.addEventListener('click', () => setView('settings'));
+
+    el.search.addEventListener('input', () => {
+      state.query = el.search.value;
+      renderTimeline();
+    });
+    el.search.addEventListener('search', () => {
+      state.query = el.search.value;
+      renderTimeline();
+    });
+    el.searchClear.addEventListener('click', () => {
+      el.search.value = '';
+      state.query = '';
+      el.search.focus();
+      renderTimeline();
+    });
+
+    el.monthPills.addEventListener('click', (event) => {
+      const pill = event.target.closest('[data-month]');
+      if (!pill) return;
+      state.month = pill.getAttribute('data-month');
+      renderTimeline();
+    });
+
+    el.timeline.addEventListener('click', (event) => {
+      const act = event.target.closest('[data-act]');
+      if (act) {
+        const name = act.getAttribute('data-act');
+        if (name === 'new-day') { openDaySheet(null); return; }
+        if (name === 'clear-filter') {
+          state.query = '';
+          state.month = 'all';
+          el.search.value = '';
+          renderTimeline();
+          return;
+        }
+        if (name === 'open-settings') { setView('settings'); return; }
+        if (name === 'join-shared') {
+          setView('settings');
+          try { el.joinRoom.focus(); } catch (e) {}
+          return;
+        }
+      }
+      const thumb = event.target.closest('[data-photo-id]');
+      if (thumb) {
+        openLightbox(thumb.getAttribute('data-day-id'), thumb.getAttribute('data-photo-id'));
+        return;
+      }
+      const openBtn = event.target.closest('[data-open-day]');
+      if (openBtn) {
+        const day = findDay(openBtn.getAttribute('data-open-day'));
+        if (day) openDaySheet(day);
+        return;
+      }
+      const card = event.target.closest('[data-day-card]');
+      if (card) {
+        const day = findDay(card.getAttribute('data-day-card'));
+        if (day) openDaySheet(day);
+      }
+    });
+
+    el.photoGroups.addEventListener('click', (event) => {
+      const act = event.target.closest('[data-act="new-day"]');
+      if (act) { openDaySheet(null); return; }
+      const cell = event.target.closest('[data-photo-id]');
+      if (!cell) return;
+      openLightbox(cell.getAttribute('data-day-id'), cell.getAttribute('data-photo-id'));
+    });
+
+    el.sheetClose.addEventListener('click', () => closeSheet(false));
+    el.sheetBackdrop.addEventListener('click', () => closeSheet(false));
+
+    el.form.addEventListener('submit', (event) => {
+      event.preventDefault();
+      submitDay();
+    });
+
+    el.fDate.addEventListener('input', () => {
+      state.draft.dateTouched = true;
+      if (state.draft) state.draft.date = el.fDate.value;
+    });
+    el.fDate.addEventListener('change', () => {
+      state.draft.dateTouched = true;
+      if (state.draft) state.draft.date = el.fDate.value;
+    });
+    el.fTitle.addEventListener('input', () => { if (state.draft) state.draft.title = el.fTitle.value; });
+    el.fPlace.addEventListener('input', () => { if (state.draft) state.draft.place = el.fPlace.value; });
+    el.fMemo.addEventListener('input', () => { if (state.draft) state.draft.memo = el.fMemo.value; });
+
+    el.fPhotos.addEventListener('change', () => {
+      /* input.value 를 비우면 FileList 도 함께 비워지므로 먼저 배열로 옮겨 둡니다. */
+      const files = Array.prototype.slice.call(el.fPhotos.files || []);
+      el.fPhotos.value = '';
+      addPickedFiles(files);
+    });
+
+    el.draftGrid.addEventListener('click', (event) => {
+      const btn = event.target.closest('[data-act="remove-draft"]');
+      if (!btn) return;
+      const tile = btn.closest('[data-key]');
+      if (tile) removeDraftItem(tile.getAttribute('data-key'));
+    });
+
+    el.btnDeleteDay.addEventListener('click', deleteCurrentDay);
+
+    el.lbClose.addEventListener('click', closeLightbox);
+    el.lbPrev.addEventListener('click', () => stepLightbox(-1));
+    el.lbNext.addEventListener('click', () => stepLightbox(1));
+    el.lbSaveCaption.addEventListener('click', saveLightboxCaption);
+    el.lbCaption.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter') { event.preventDefault(); saveLightboxCaption(); }
+    });
+    el.lbDownload.addEventListener('click', downloadCurrentPhoto);
+    el.lbRemove.addEventListener('click', removeCurrentPhoto);
+
+    let touchX = 0;
+    let touchY = 0;
+    let touching = false;
+    el.lbStage.addEventListener('touchstart', (event) => {
+      const t = event.changedTouches[0];
+      if (!t) return;
+      touchX = t.clientX; touchY = t.clientY; touching = true;
+    }, { passive: true });
+    el.lbStage.addEventListener('touchend', (event) => {
+      if (!touching) return;
+      touching = false;
+      const t = event.changedTouches[0];
+      if (!t) return;
+      const dx = t.clientX - touchX;
+      const dy = t.clientY - touchY;
+      if (Math.abs(dx) < 45 || Math.abs(dy) > Math.abs(dx)) return;
+      stepLightbox(dx < 0 ? 1 : -1);
+    }, { passive: true });
+
+    document.addEventListener('keydown', (event) => {
+      if (!el.dialog.classList.contains('hidden')) {
+        if (event.key === 'Escape') { event.preventDefault(); closeDialog(false); }
+        return;
+      }
+      if (!el.lightbox.classList.contains('hidden')) {
+        if (event.key === 'Escape') { closeLightbox(); return; }
+        if (event.key === 'ArrowLeft') { stepLightbox(-1); return; }
+        if (event.key === 'ArrowRight') { stepLightbox(1); return; }
+        return;
+      }
+      if (!el.sheet.classList.contains('hidden') && event.key === 'Escape') closeSheet(false);
+    });
+
+    el.dialogBackdrop.addEventListener('click', () => closeDialog(false));
+
+    /* ---- 설정: 공유 ---- */
+    el.btnCreateRoom.addEventListener('click', createRoom);
+    el.btnCopyLink.addEventListener('click', copyShareLink);
+    el.btnLeaveRoom.addEventListener('click', leaveRoom);
+    el.btnJoinRoom.addEventListener('click', joinSharedFromInput);
+    el.joinRoom.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter') { event.preventDefault(); joinSharedFromInput(); }
+    });
+
+    /* ---- 설정: 기념일 ---- */
+    el.btnSaveSince.addEventListener('click', saveSinceFromForm);
+
+    /* ---- 설정: 알림 ---- */
+    el.pushToggle.addEventListener('change', () => updatePushSetting({ enabled: el.pushToggle.checked }, true));
+    el.pushChange.addEventListener('change', () => updatePushSetting({ changeAlerts: el.pushChange.checked }, false));
+    el.pushAnniv.addEventListener('change', () => updatePushSetting({ annivAlerts: el.pushAnniv.checked }, false));
+    el.pushTime.addEventListener('change', () => {
+      const v = String(el.pushTime.value || '');
+      if (/^([01]\d|2[0-3]):[0-5]\d$/.test(v)) updatePushSetting({ remindTime: v }, false);
+    });
+
+    /* ---- 설정: Cloudinary ---- */
+    el.btnSaveCloud.addEventListener('click', saveCloudinaryFromForm);
+    el.btnResetCloud.addEventListener('click', resetCloudinaryToDefault);
+
+    /* ---- 설정: 올리기 화질 ---- */
+    el.qualityOptions.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const mode = saveUploadQuality(btn.getAttribute('data-quality'));
+        renderSettings();
+        toast(mode === UPLOAD_MODE_ECO
+          ? '이제 사진을 1600px로 줄여 올려요.'
+          : '이제 사진을 원본 화질로 올려요.');
+      });
+    });
+
+    /* ---- 설정: 닉네임 ---- */
+    el.btnSaveNick.addEventListener('click', () => {
+      const value = clampText(el.setNickname.value, MAX_AUTHOR);
+      saveProfile(value);
+      el.setNickname.value = profile.nickname;
+      if (push.registeredRoom) registerDevice().catch(() => {});
+      renderSettings();
+      toast(profile.nickname ? profile.nickname + '(으)로 남길게요.' : '닉네임을 비웠어요.');
+    });
+    el.setNickname.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter') { event.preventDefault(); el.btnSaveNick.click(); }
+    });
+
+    window.addEventListener('resize', applyViewportHeight);
+  }
+
+  async function createRoom() {
+    if (shared.active) return;
+    if (!profile.nickname) {
+      setView('settings');
+      toast('먼저 내 닉네임을 정해 주세요.');
+      try { el.setNickname.focus(); } catch (e) {}
+      return;
+    }
+    const localDays = local.days.slice();
+    el.btnCreateRoom.disabled = true;
+    el.btnCreateRoom.textContent = '만드는 중…';
+    try {
+      await startShared(randomRoomId());
+      if (shared.error) {
+        /* 방을 만들지 못했으면(예: 규칙 미게시) 혼자 쓰던 앨범으로 되돌립니다. */
+        const reason = shared.error;
+        stopShared();
+        rememberRoom('');
+        setShareUrl('');
+        useLocalAlbum();
+        renderAll();
+        toast('공유를 시작하지 못했어요: ' + reason);
+        return;
+      }
+      if (localDays.length) {
+        try { await pushLocalDays(localDays); }
+        catch (err) { toast('이 기기의 추억을 올리지 못했어요: ' + shareErrorMessage(err)); }
+      }
+      await saveCloudinaryToRoom();
+      renderAll();
+      if (localDays.length) toast('공유 링크를 만들었어요. 추억 ' + localDays.length + '개를 함께 볼 수 있어요.');
+      else toast('공유 링크를 만들었어요. 링크를 복사해 보내 주세요.');
+    } catch (err) {
+      toast('공유를 시작하지 못했어요: ' + shareErrorMessage(err));
+    } finally {
+      el.btnCreateRoom.disabled = false;
+      el.btnCreateRoom.textContent = '공유 링크 만들기';
+      renderSettings();
+    }
+  }
+
+  const JOIN_HINT = '상대에게 받은 링크를 붙여 넣으면 같은 앨범을 함께 봐요. 홈 화면으로 열어도 여기서 한 번만 넣으면 돼요.';
+
+  function setJoinNote(text, tone) {
+    if (!el.joinNote) return;
+    el.joinNote.textContent = text === '' ? JOIN_HINT : text;
+    el.joinNote.className = 'key-state' + (tone ? ' ' + tone : '');
+  }
+
+  async function joinSharedFromInput() {
+    if (state.joining) return;
+    const raw = String((el.joinRoom && el.joinRoom.value) || '');
+    if (!raw.trim()) {
+      setJoinNote('받은 공유 링크를 붙여 넣거나 album-… 방 ID를 적어 주세요.', 'warn');
+      toast('받은 공유 링크를 붙여 넣어 주세요.');
+      try { el.joinRoom.focus(); } catch (e) {}
+      return;
+    }
+    const roomId = roomIdFromInput(raw);
+    if (!usableRoomId(roomId)) {
+      setJoinNote('앨범 링크가 아닌 것 같아요. …?room=album-xxxxxxxx 처럼 생긴 링크를 붙여 넣어 주세요.', 'warn');
+      toast('앨범 링크를 확인해 주세요.');
+      try { el.joinRoom.focus(); } catch (e) {}
+      return;
+    }
+    if (shared.active && shared.roomId === roomId) {
+      setJoinNote('이미 이 앨범을 함께 보고 있어요.', 'on');
+      return;
+    }
+
+    const previousRoom = lastRoomId();
+    state.joining = true;
+    el.btnJoinRoom.disabled = true;
+    el.btnJoinRoom.textContent = '들어가는 중…';
+    setJoinNote('앨범을 여는 중…', '');
+    try {
+      if (shared.active) stopShared();
+      await startShared(roomId);
+      if (shared.error) {
+        /* 링크를 잘못 넣었거나 규칙이 없으면 혼자 쓰던 앨범으로 돌아가요. */
+        const reason = shared.error;
+        stopShared();
+        rememberRoom(previousRoom);
+        setShareUrl('');
+        useLocalAlbum();
+        renderAll();
+        setJoinNote('앨범에 들어가지 못했어요: ' + reason, 'warn');
+        toast('앨범에 들어가지 못했어요: ' + reason);
+        return;
+      }
+      el.joinRoom.value = '';
+      setJoinNote('', '');
+      renderAll();
+      toast('함께 쓰는 앨범에 들어왔어요.');
+    } catch (err) {
+      setJoinNote('앨범에 들어가지 못했어요: ' + shareErrorMessage(err), 'warn');
+      toast('앨범에 들어가지 못했어요: ' + shareErrorMessage(err));
+    } finally {
+      state.joining = false;
+      el.btnJoinRoom.disabled = false;
+      el.btnJoinRoom.textContent = '들어가기';
+    }
+  }
+
+  async function copyShareLink() {
+    const url = shareUrlFor(shared.roomId);
+    let copied = false;
+    try {
+      await navigator.clipboard.writeText(url);
+      copied = true;
+    } catch (e) {
+      copied = false;
+    }
+    if (!copied) {
+      try {
+        el.shareLink.removeAttribute('readonly');
+        el.shareLink.select();
+        copied = document.execCommand('copy');
+        el.shareLink.setAttribute('readonly', 'readonly');
+      } catch (e2) { copied = false; }
+    }
+    toast(copied ? '공유 링크를 복사했어요.' : '링크를 길게 눌러 복사해 주세요.');
+  }
+
+  async function leaveRoom() {
+    const ok = await confirmDialog({
+      title: '함께 쓰기를 그만둘까요?',
+      message: '이 기기에서는 다시 혼자 쓰는 앨범으로 돌아가요.\n방에 올린 추억은 그대로 남아 있어 링크로 다시 열 수 있어요.',
+      confirm: '그만두기'
+    });
+    if (!ok) return;
+    stopShared();
+    rememberRoom('');
+    setShareUrl('');
+    useLocalAlbum();
+    renderAll();
+    toast('이 기기에서만 보는 앨범으로 돌아왔어요.');
+  }
+
+  function renderSettingsOnly() { renderSettings(); }
+
+  function resetCloudinaryToDefault() {
+    try { localStorage.removeItem(CLOUDINARY_KEY); } catch (e) {}
+    el.setCloudName.value = DEFAULT_CLOUDINARY.cloudName;
+    el.setPreset.value = DEFAULT_CLOUDINARY.uploadPreset;
+    renderSettings();
+    toast('기본 설정으로 되돌렸어요.');
+    saveCloudinaryToRoom();
+  }
+
+  function saveCloudinaryFromForm() {
+    const cloudName = String(el.setCloudName.value || '').trim();
+    const uploadPreset = String(el.setPreset.value || '').trim();
+    if (!cloudName && !uploadPreset) {
+      saveCloudinaryConfig({ cloudName: '', uploadPreset: '' });
+      renderSettings();
+      toast('Cloudinary 연결을 지웠어요. 사진은 이 기기에만 담겨요.');
+      return;
+    }
+    if (!/^[A-Za-z0-9_-]{2,60}$/.test(cloudName)) {
+      toast('Cloud name 을 확인해 주세요 (영문·숫자·-·_).');
+      el.setCloudName.focus();
+      return;
+    }
+    if (!/^[A-Za-z0-9_-]{1,60}$/.test(uploadPreset)) {
+      toast('Upload preset 이름을 확인해 주세요.');
+      el.setPreset.focus();
+      return;
+    }
+    saveCloudinaryConfig({ cloudName: cloudName, uploadPreset: uploadPreset });
+    renderSettings();
+    toast('Cloudinary를 연결했어요. 이제 사진을 원본 화질로 올려요.');
+    saveCloudinaryToRoom();
+  }
+
+  /* ---------------------------------------------------------------- 시작 */
+  function applyViewportHeight() {
+    try {
+      const vh = (window.visualViewport && window.visualViewport.height) || window.innerHeight;
+      if (vh) document.documentElement.style.setProperty('--app-vh', vh + 'px');
+    } catch (e) {}
+  }
+
+  async function boot() {
+    applyViewportHeight();
+    loadProfile();
+    bindEvents();
+
+    const album = await loadAlbum();
+    const clean = sanitizeAlbum(album);
+    local.days = clean.days;
+    state.storageMode = store.mode;
+
+    const roomId = roomFromUrl() || '';
+    if (roomId) {
+      useLocalAlbum();
+      renderAll();
+      await startShared(roomId);
+    } else {
+      const lastRoom = lastRoomId();
+      if (lastRoom) {
+        /* 지난번에 함께 쓰던 방이 있으면 그 방으로 이어서 엽니다. */
+        useLocalAlbum();
+        renderAll();
+        await startShared(lastRoom);
+      } else {
+        useLocalAlbum();
+        renderAll();
+      }
+    }
+    state.ready = true;
+    renderSettings();
+  }
+
+  /* 테스트와 디버깅을 위한 작은 창구 */
+  window.PhotoAlbum = {
+    version: APP_VERSION,
+    state: state,
+    shared: shared,
+    local: local,
+    store: store,
+    limits: {
+      uploadDirectBytes: UPLOAD_DIRECT_LIMIT,
+      uploadMaxSide: UPLOAD_MAX_SIDE,
+      ecoMaxSide: ECO_UPLOAD_MAX_SIDE,
+      ecoKeepBytes: ECO_KEEP_BYTES,
+      localMaxSide: LOCAL_PHOTO_MAX_SIDE
+    },
+    readPersisted: readPersisted,
+    storageState: () => ({ mode: store.mode, error: store.error }),
+    extractExifTaken: extractExifTaken,
+    extractExifDate: extractExifDate,
+    exifDateToISO: exifDateToISO,
+    normalizeDay: normalizeDay,
+    sanitizeAlbum: sanitizeAlbum,
+    cloudinaryTransform: cloudinaryTransform,
+    prepareUploadBlob: prepareUploadBlob,
+    uploadQuality: uploadQuality,
+    saveUploadQuality: saveUploadQuality,
+    normalizeUploadQuality: normalizeUploadQuality,
+    shouldCompress: shouldCompress,
+    cloudinaryConfig: cloudinaryConfig,
+    nickname: nickname,
+    openDaySheet: openDaySheet,
+    openLightbox: openLightbox,
+    setView: setView,
+    renderAll: renderAll,
+    renderSettings: renderSettingsOnly,
+    displayTitle: displayTitle
+  };
+
+  boot().catch((err) => {
+    try { toast('앱을 여는 중 문제가 생겼어요: ' + ((err && err.message) || err)); } catch (e) {}
+    console.error(err);
+  });
+})();
+</script>
+</body>
+</html>

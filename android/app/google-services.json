@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "1085807433548",
+    "project_id": "jaeyeon-life",
+    "storage_bucket": "jaeyeon-life.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1085807433548:android:4463ffd4deba2e7723e1e9",
+        "android_client_info": {
+          "package_name": "io.github.cheesebyte99.calendar"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCHFFZAkV0AAfjnjKPAPPM21W0gzPkJJsg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1085807433548:android:11a02677d9dc89bc23e1e9",
+        "android_client_info": {
+          "package_name": "io.github.cheesebyte99.photoalbum"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCHFFZAkV0AAfjnjKPAPPM21W0gzPkJJsg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
