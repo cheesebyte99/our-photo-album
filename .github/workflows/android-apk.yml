@@ -4,6 +4,7 @@ on:
   push:
     paths-ignore:
       - 'README.md'
+      - 'CLAUDE.md'
   workflow_dispatch:
 
 permissions:
