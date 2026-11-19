@@ -11,6 +11,7 @@
   | `book-tracker` | 📚 내 책장 (+ 옮긴 앱의 예전 주소에서 새 주소로 넘겨 주는 페이지) | https://cheesebyte99.github.io/book-tracker/ |
   | `our-calendar` | 📅 우리들의 캘린더 웹 + 안드로이드 앱 | https://cheesebyte99.github.io/our-calendar/ |
   | `our-photo-album` | 📸 우리 사진첩 웹 + 안드로이드 앱 | https://cheesebyte99.github.io/our-photo-album/ |
+  | `our-gifticons` | 🎁 우리 기프티콘 웹 + 안드로이드 앱 | https://cheesebyte99.github.io/our-gifticons/ |
   | `our-firebase` | 🔥 Firestore 규칙 · Cloud Functions(알림 서버) · 자동 배포 | (웹 없음) |
 - 모든 앱이 Firebase 프로젝트 `jaeyeon-life` 하나를 함께 쓴다. **Firestore 규칙·알림 서버는 `our-firebase` 에만 둔다**
   (규칙 파일은 프로젝트에 하나뿐이라 나눠 두면 서로 덮어쓴다). 새 앱이 Firebase 를 쓰면 그 부분만 `our-firebase` 에 더한다.
