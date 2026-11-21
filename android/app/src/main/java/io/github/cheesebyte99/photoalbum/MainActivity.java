@@ -91,7 +91,8 @@ public class MainActivity extends Activity {
         s.setDomStorageEnabled(true);          // localStorage·IndexedDB: 앨범·설정 보관
         s.setDatabaseEnabled(true);
         s.setAllowFileAccess(false);
-        s.setAllowContentAccess(false);
+        // 고른 사진(앱 안 복사본, content://…files)을 웹 화면이 읽으려면 켜 둬야 한다.
+        s.setAllowContentAccess(true);
         s.setMediaPlaybackRequiresUserGesture(true);
         s.setUserAgentString(s.getUserAgentString() + " OurPhotoAlbumApp/1");
 
@@ -134,18 +135,28 @@ public class MainActivity extends Activity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode != REQ_FILE || fileCallback == null) return;
-        Uri[] result = null;
+        Uri[] picked = null;
         if (resultCode == RESULT_OK && data != null) {
             ClipData clip = data.getClipData();
             if (clip != null && clip.getItemCount() > 0) {
-                result = new Uri[clip.getItemCount()];
-                for (int i = 0; i < clip.getItemCount(); i++) result[i] = clip.getItemAt(i).getUri();
+                picked = new Uri[clip.getItemCount()];
+                for (int i = 0; i < clip.getItemCount(); i++) picked[i] = clip.getItemAt(i).getUri();
             } else if (data.getData() != null) {
-                result = new Uri[]{data.getData()};
+                picked = new Uri[]{data.getData()};
             }
         }
-        fileCallback.onReceiveValue(result);
+        final ValueCallback<Uri[]> callback = fileCallback;
         fileCallback = null;
+        if (picked == null) {
+            callback.onReceiveValue(null);
+            return;
+        }
+        // 고른 사진을 앱 안으로 복사(HEIC 는 JPG 로)한 뒤 넘긴다 — 큰 사진도 있으니 바깥 스레드에서.
+        final Uri[] chosen = picked;
+        new Thread(() -> {
+            Uri[] ready = PickedPhotos.copyAll(MainActivity.this, chosen);
+            runOnUiThread(() -> callback.onReceiveValue(ready));
+        }).start();
     }
 
     private final class AlbumChrome extends WebChromeClient {
@@ -153,6 +164,7 @@ public class MainActivity extends Activity {
         public boolean onShowFileChooser(WebView view, ValueCallback<Uri[]> callback, FileChooserParams params) {
             if (fileCallback != null) fileCallback.onReceiveValue(null);
             fileCallback = callback;
+            PickedPhotos.clear(MainActivity.this);
             try {
                 Intent pick = new Intent(Intent.ACTION_GET_CONTENT)
                         .addCategory(Intent.CATEGORY_OPENABLE)

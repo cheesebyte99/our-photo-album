@@ -2280,11 +2280,16 @@
   function imageErrorText(err, file) {
     const code = String((err && err.message) || err || '');
     const name = String((file && file.name) || '').toLowerCase();
-    if (/heic|heif/.test(name) || /heic/i.test(code)) {
-      return '아이폰 HEIC 사진은 브라우저에서 열 수 없어요. 설정 > 카메라 > 포맷을 "높은 호환성"으로 바꾸면 JPG로 찍혀요.';
+    const type = String((file && file.type) || '').toLowerCase();
+    if (/heic|heif/.test(name) || /heic|heif/.test(type) || /heic/i.test(code)) {
+      return 'HEIC(고효율) 사진은 브라우저에서 열 수 없어요. 우리 사진첩 앱(APK)에서 올리면 JPG로 바꿔 올려요. ' +
+        '(아이폰: 설정 > 카메라 > 포맷 > 높은 호환성 · 갤럭시: 카메라 설정 > 고급 사진 옵션 > 고효율 사진 끄기)';
+    }
+    if (code === 'read-failed') {
+      return '사진 파일을 읽지 못했어요. 클라우드(구글 포토 등)에만 있는 사진이면 먼저 휴대폰에 내려받은 뒤 골라 주세요.';
     }
     if (code === 'encode-failed') return '사진을 줄이지 못했어요. 다른 사진으로 해 보세요.';
-    return '사진을 열지 못했어요. 다른 사진으로 해 보세요.';
+    return '사진을 열지 못했어요' + (type ? ' (' + type + ')' : '') + '. 다른 사진으로 해 보세요.';
   }
 
   /* ---------------------------------------------------------------- Cloudinary */
@@ -3329,7 +3334,9 @@
       state.draft.photos.push(item);
       renderDraft();
       try {
-        const bytes = await readPhotoBytes(file);
+        let bytes;
+        try { bytes = await readPhotoBytes(file); }
+        catch (readErr) { throw new Error('read-failed'); }
         const exif = extractExifTaken(bytes);
         if (exif.date) item.takenAt = exif.date + (exif.time ? 'T' + exif.time : '');
         const source = await decodeImage(file, 1600);

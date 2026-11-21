@@ -72,5 +72,15 @@
                 <data android:mimeType="text/plain" />
             </intent-filter>
         </activity>
+        <!-- 고른 사진의 앱 안 복사본을 웹 화면에 넘기는 통로 (PickedPhotos) -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.files"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
     </application>
 </manifest>
